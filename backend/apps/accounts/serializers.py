@@ -14,12 +14,30 @@ class UserSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "email",
+            "phone_number",
             "first_name",
             "last_name",
+            "tenant",
+            "user_type",
+            "job_title",
             "is_landlord",
             "is_agency_admin",
+            "is_owner",
+            "is_tenant_user",
+            "is_caretaker",
+            "avatar",
+            "last_seen_at",
         ]
-        read_only_fields = ["id", "is_landlord", "is_agency_admin"]
+        read_only_fields = [
+            "id",
+            "tenant",
+            "is_landlord",
+            "is_agency_admin",
+            "is_owner",
+            "is_tenant_user",
+            "is_caretaker",
+            "last_seen_at",
+        ]
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -27,7 +45,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "first_name", "last_name"]
+        fields = [
+            "username",
+            "email",
+            "phone_number",
+            "password",
+            "first_name",
+            "last_name",
+            "user_type",
+            "job_title",
+        ]
 
     def create(self, validated_data):
         password = validated_data.pop("password")

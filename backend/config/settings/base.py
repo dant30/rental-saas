@@ -120,9 +120,11 @@ SHARED_APPS = [
 ]
 
 TENANT_APPS = [
-    # Tenant-specific apps should be added here.
     "apps.properties",
     "apps.tenants_app",
+    "apps.payments",
+    "apps.caretakers",
+    "apps.notifications",
 ]
 
 INSTALLED_APPS = SHARED_APPS + TENANT_APPS

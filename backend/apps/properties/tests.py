@@ -22,7 +22,26 @@ class PropertyAPITests(TenantTestCase):
         # Enable schema auto-creation for tests, so the tenant schema exists.
         tenant.auto_create_schema = True
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        # Make sure tenant schema has all migrations applied.
+        call_command(
+            "migrate_schemas",
+            "--tenant",
+            "--schema",
+            cls.get_test_schema_name(),
+            interactive=False,
+            verbosity=0,
+        )
+
     def setUp(self):
+        from django.db import connection
+
+        # Ensure the test runs within the tenant schema.
+        connection.set_tenant(self.tenant)
+
         # Use APIClient so we can easily authenticate using DRF helpers.
         self.client = APIClient()
         self.url = "/api/properties/"
@@ -31,8 +50,38 @@ class PropertyAPITests(TenantTestCase):
             username="tenant_admin",
             email="admin@tenant.test.com",
             password="SuperSecret123",
+            tenant=self.tenant,
+            is_landlord=True,
         )
         self.client.force_authenticate(user=self.user)
+
+    @classmethod
+    def tearDownClass(cls):
+        from django.db import connection
+        from django_tenants.utils import schema_exists
+
+        # Clean up shared-domain data and tenant record, avoiding cascading into the tenant schema.
+        connection.set_schema_to_public()
+        cls.domain.delete()
+
+        tenant_table = cls.tenant._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"DELETE FROM \"{tenant_table}\" WHERE schema_name = %s",
+                [cls.tenant.schema_name],
+            )
+
+        # Drop the tenant schema after the test is finished.
+        try:
+            if schema_exists(cls.tenant.schema_name):
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f'DROP SCHEMA IF EXISTS "{cls.tenant.schema_name}" CASCADE'
+                    )
+        except Exception:
+            pass
+
+        cls.remove_allowed_test_domain()
 
     def _api_post(self, payload):
         # Ensure tenant resolution uses the expected host.

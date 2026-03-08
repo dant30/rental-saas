@@ -16,9 +16,30 @@ class TenantRentalAPITests(TenantTestCase):
 
     @classmethod
     def setup_tenant(cls, tenant):
+        # Ensure the tenant schema is created when the tenant is saved.
         tenant.auto_create_schema = True
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Make sure tenant schema has all migrations applied.
+        from django.core.management import call_command
+
+        call_command(
+            "migrate_schemas",
+            "--tenant",
+            "--schema",
+            cls.get_test_schema_name(),
+            interactive=False,
+            verbosity=0,
+        )
+
     def setUp(self):
+        from django.db import connection
+
+        # Ensure the test runs within the tenant schema.
+        connection.set_tenant(self.tenant)
+
         self.client = APIClient()
 
         # A tenant admin user (landlord) used for API calls.
@@ -40,12 +61,14 @@ class TenantRentalAPITests(TenantTestCase):
         )
 
         self.property = Property.objects.create(
+            tenant=self.tenant,
             name="Tenant Property",
             address="100 Tenant Ave",
             property_type="apartment",
             description="Test property",
         )
         self.unit = Unit.objects.create(
+            tenant=self.tenant,
             property=self.property,
             unit_number="101",
             bedrooms=1,
@@ -53,6 +76,35 @@ class TenantRentalAPITests(TenantTestCase):
             deposit_amount="550.00",
             status="vacant",
         )
+
+    @classmethod
+    def tearDownClass(cls):
+        from django.db import connection
+        from django_tenants.utils import schema_exists
+
+        # Clean up shared objects and tenant record (without cascading into the tenant schema).
+        connection.set_schema_to_public()
+        cls.domain.delete()
+
+        # Remove the tenant record directly to avoid cascade deletion tries on tenant schema tables.
+        tenant_table = cls.tenant._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"DELETE FROM \"{tenant_table}\" WHERE schema_name = %s",
+                [cls.tenant.schema_name],
+            )
+
+        # Drop the tenant schema after the test is finished.
+        try:
+            if schema_exists(cls.tenant.schema_name):
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f'DROP SCHEMA IF EXISTS "{cls.tenant.schema_name}" CASCADE'
+                    )
+        except Exception:
+            pass
+
+        cls.remove_allowed_test_domain()
 
     def _tenant_headers(self):
         return {"HTTP_HOST": self.get_test_tenant_domain()}
