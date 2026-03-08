@@ -1,5 +1,7 @@
 """Tests for caretaker and maintenance APIs."""
 
+import datetime
+
 from django.core.management import call_command
 
 from django_tenants.test.cases import TenantTestCase
@@ -7,7 +9,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
-from apps.caretakers.models import MaintenanceRequest
+from apps.caretakers.models import MaintenanceRequest, MaintenanceSchedule
+from apps.caretakers.services import create_preventive_work_orders
 from apps.properties.models import Property, Unit
 from apps.tenants_app.models import Resident
 
@@ -164,3 +167,51 @@ class CaretakerAPITests(TenantTestCase):
         )
         self.assertEqual(schedule_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(MaintenanceRequest.objects.count(), 1)
+
+    def test_auto_assignment_and_preventive_work_order_creation(self):
+        caretaker_payload = {
+            "user": self.caretaker_user.id,
+            "employee_id": "CT-02",
+            "phone_number": "+254700000002",
+            "skills": "water, plumbing, tank",
+            "service_areas": "Nairobi",
+            "max_open_tasks": 5,
+            "is_available": True,
+            "status": "active",
+        }
+        caretaker_response = self.client.post(
+            "/api/caretakers/", caretaker_payload, format="json", **self._headers()
+        )
+        self.assertEqual(caretaker_response.status_code, status.HTTP_201_CREATED)
+
+        auto_request = self.client.post(
+            "/api/maintenance-requests/",
+            {
+                "resident": self.resident.id,
+                "property": self.property.id,
+                "unit": self.unit.id,
+                "title": "Water pressure issue",
+                "description": "Need plumbing support for tank and water pressure",
+                "priority": "medium",
+            },
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(auto_request.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(auto_request.data["assigned_to"], caretaker_response.data["id"])
+
+        schedule = MaintenanceSchedule.objects.create(
+            tenant=self.tenant,
+            property=self.property,
+            unit=self.unit,
+            title="Tank inspection",
+            description="Monthly tank and plumbing inspection",
+            frequency=MaintenanceSchedule.Frequency.MONTHLY,
+            next_due_at=datetime.date(2026, 3, 1),
+            is_active=True,
+        )
+
+        created = create_preventive_work_orders(today=datetime.date(2026, 3, 1), tenant=self.tenant)
+        self.assertEqual(len(created), 1)
+        schedule.refresh_from_db()
+        self.assertGreater(schedule.next_due_at, datetime.date(2026, 3, 1))

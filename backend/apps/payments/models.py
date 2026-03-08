@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -165,6 +166,106 @@ class Payment(TenantAwareModel):
             self.unit_id = self.lease.unit_id
             self.property_id = self.lease.unit.property_id
             self.tenant_id = self.lease.unit.tenant_id
+        super().save(*args, **kwargs)
+
+
+class PaymentGatewayTransaction(TenantAwareModel):
+    class Gateway(models.TextChoices):
+        MPESA = "mpesa", "M-Pesa"
+        BANK = "bank", "Bank"
+
+    class TransactionType(models.TextChoices):
+        STK_PUSH = "stk_push", "STK Push"
+        C2B_CALLBACK = "c2b_callback", "C2B Callback"
+        BANK_TRANSFER = "bank_transfer", "Bank Transfer"
+        MANUAL_BANK_POSTING = "manual_bank_posting", "Manual Bank Posting"
+
+    class Status(models.TextChoices):
+        INITIATED = "initiated", "Initiated"
+        PENDING = "pending", "Pending"
+        PROCESSING = "processing", "Processing"
+        SUCCEEDED = "succeeded", "Succeeded"
+        FAILED = "failed", "Failed"
+        CANCELLED = "cancelled", "Cancelled"
+
+    payment = models.OneToOneField(
+        Payment,
+        on_delete=models.SET_NULL,
+        related_name="gateway_transaction",
+        null=True,
+        blank=True,
+    )
+    lease = models.ForeignKey(
+        "tenants_app.Lease",
+        on_delete=models.PROTECT,
+        related_name="gateway_transactions",
+    )
+    resident = models.ForeignKey(
+        "tenants_app.Resident",
+        on_delete=models.PROTECT,
+        related_name="gateway_transactions",
+    )
+    invoice = models.ForeignKey(
+        Invoice,
+        on_delete=models.SET_NULL,
+        related_name="gateway_transactions",
+        null=True,
+        blank=True,
+    )
+    property = models.ForeignKey(
+        "properties.Property",
+        on_delete=models.PROTECT,
+        related_name="gateway_transactions",
+    )
+    unit = models.ForeignKey(
+        "properties.Unit",
+        on_delete=models.PROTECT,
+        related_name="gateway_transactions",
+    )
+    gateway = models.CharField(max_length=20, choices=Gateway.choices)
+    transaction_type = models.CharField(max_length=30, choices=TransactionType.choices)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.INITIATED)
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    currency = models.CharField(max_length=10, default="KES")
+    phone_number = models.CharField(max_length=30, blank=True)
+    account_reference = models.CharField(max_length=120, blank=True)
+    external_reference = models.CharField(max_length=255, blank=True)
+    merchant_request_id = models.CharField(max_length=255, blank=True)
+    checkout_request_id = models.CharField(max_length=255, blank=True)
+    gateway_transaction_id = models.CharField(max_length=255, blank=True)
+    bank_name = models.CharField(max_length=255, blank=True)
+    bank_account_name = models.CharField(max_length=255, blank=True)
+    bank_account_number = models.CharField(max_length=100, blank=True)
+    result_code = models.CharField(max_length=50, blank=True)
+    result_description = models.TextField(blank=True)
+    request_payload = models.JSONField(default=dict, blank=True)
+    callback_payload = models.JSONField(default=dict, blank=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["tenant", "gateway", "status", "created_at"]),
+            models.Index(fields=["checkout_request_id"]),
+            models.Index(fields=["external_reference"]),
+        ]
+
+    def __str__(self):
+        return f"{self.gateway} {self.external_reference or self.pk}"
+
+    def save(self, *args, **kwargs):
+        if self.lease_id:
+            self.resident_id = self.lease.resident_id
+            self.unit_id = self.lease.unit_id
+            self.property_id = self.lease.unit.property_id
+            self.tenant_id = self.lease.unit.tenant_id
+        if self.status == self.Status.SUCCEEDED and not self.completed_at:
+            self.completed_at = timezone.now()
         super().save(*args, **kwargs)
 
 

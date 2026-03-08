@@ -83,3 +83,65 @@ class MaintenanceScheduleSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "tenant", "created_at", "updated_at"]
+
+
+class CaretakerTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MaintenanceRequest
+        fields = [
+            "id",
+            "property",
+            "unit",
+            "title",
+            "description",
+            "priority",
+            "status",
+            "assigned_at",
+            "completed_at",
+            "estimated_cost",
+            "actual_cost",
+            "access_notes",
+            "internal_notes",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "property",
+            "unit",
+            "title",
+            "description",
+            "priority",
+            "assigned_at",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class TenantMaintenanceRequestSerializer(serializers.ModelSerializer):
+    assigned_to = CaretakerSerializer(read_only=True)
+
+    class Meta:
+        model = MaintenanceRequest
+        fields = [
+            "id",
+            "resident",
+            "property",
+            "unit",
+            "assigned_to",
+            "title",
+            "description",
+            "priority",
+            "status",
+            "access_notes",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "resident",
+            "assigned_to",
+            "status",
+            "created_at",
+            "updated_at",
+        ]

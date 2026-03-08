@@ -71,7 +71,10 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         return get_announcement_queryset_for_user(self.request.user)
 
     def perform_create(self, serializer):
-        save_announcement_for_user(serializer, self.request.user)
+        from .services import broadcast_announcement
+
+        announcement = save_announcement_for_user(serializer, self.request.user)
+        broadcast_announcement(announcement)
 
 
 class ConversationViewSet(viewsets.ModelViewSet):

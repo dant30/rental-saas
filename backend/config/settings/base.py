@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Third-party
+    "channels",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
@@ -79,6 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 
 DATABASES = {
     "default": {
@@ -111,6 +113,7 @@ SHARED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "channels",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
@@ -160,6 +163,23 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Notifications
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@rentalsaas.local")
+SMS_PROVIDER = os.getenv("SMS_PROVIDER", "console")
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
+TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER", "")
+
+# M-Pesa
+MPESA_PROVIDER = os.getenv("MPESA_PROVIDER", "mock")
+MPESA_ENVIRONMENT = os.getenv("MPESA_ENVIRONMENT", "sandbox")
+MPESA_CONSUMER_KEY = os.getenv("MPESA_CONSUMER_KEY", "")
+MPESA_CONSUMER_SECRET = os.getenv("MPESA_CONSUMER_SECRET", "")
+MPESA_SHORTCODE = os.getenv("MPESA_SHORTCODE", "")
+MPESA_PASSKEY = os.getenv("MPESA_PASSKEY", "")
+MPESA_CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL", "")
+MPESA_TRANSACTION_TYPE = os.getenv("MPESA_TRANSACTION_TYPE", "CustomerPayBillOnline")
+
 # CORS
 CORS_ALLOW_ALL_ORIGINS = _env_bool("CORS_ALLOW_ALL_ORIGINS", True)
 
@@ -171,6 +191,31 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": os.getenv("CHANNEL_LAYER_BACKEND", "channels.layers.InMemoryChannelLayer"),
+    }
+}
+
+# Celery
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULE = {
+    "generate-monthly-invoices": {
+        "task": "apps.payments.tasks.generate_monthly_invoices_task",
+        "schedule": 86400.0,
+    },
+    "sync-overdue-invoices": {
+        "task": "apps.payments.tasks.sync_overdue_invoices_task",
+        "schedule": 86400.0,
+    },
+    "create-preventive-work-orders": {
+        "task": "apps.caretakers.tasks.create_preventive_work_orders_task",
+        "schedule": 86400.0,
+    },
 }
 
 # Default auto field

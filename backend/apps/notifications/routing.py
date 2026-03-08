@@ -1,0 +1,11 @@
+"""WebSocket routing for notifications and conversations."""
+
+from django.urls import re_path
+
+from .consumers import ConversationConsumer, NotificationConsumer
+
+
+websocket_urlpatterns = [
+    re_path(r"^ws/notifications/$", NotificationConsumer.as_asgi()),
+    re_path(r"^ws/conversations/(?P<conversation_id>\d+)/$", ConversationConsumer.as_asgi()),
+]

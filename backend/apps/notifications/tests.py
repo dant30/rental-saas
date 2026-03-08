@@ -1,6 +1,10 @@
-"""Tests for notification and messaging APIs."""
+"""Tests for notification, messaging, and websocket event APIs."""
 
+from unittest.mock import MagicMock, patch
+
+from django.core import mail
 from django.core.management import call_command
+from django.test import override_settings
 
 from django_tenants.test.cases import TenantTestCase
 from rest_framework import status
@@ -8,6 +12,7 @@ from rest_framework.test import APIClient
 
 from apps.accounts.models import User
 from apps.notifications.models import Notification
+from apps.notifications.services import dispatch_notification
 
 
 class NotificationAPITests(TenantTestCase):
@@ -148,3 +153,93 @@ class NotificationAPITests(TenantTestCase):
         notification_list = self.client.get("/api/notifications/", **self._headers())
         self.assertEqual(notification_list.status_code, status.HTTP_200_OK)
         self.assertEqual(len(notification_list.data), 1)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="no-reply@test.local",
+        SMS_PROVIDER="twilio",
+        TWILIO_ACCOUNT_SID="AC123",
+        TWILIO_AUTH_TOKEN="secret",
+        TWILIO_FROM_NUMBER="+15550000000",
+    )
+    @patch("apps.notifications.services.urllib_request.urlopen")
+    def test_multi_channel_delivery(self, mocked_urlopen):
+        mocked_response = MagicMock()
+        mocked_response.__enter__.return_value = mocked_response
+        mocked_response.__exit__.return_value = False
+        mocked_urlopen.return_value = mocked_response
+
+        self.member_user.phone_number = "+254700123456"
+        self.member_user.save(update_fields=["phone_number"])
+
+        self.client.force_authenticate(self.member_user)
+        preference_response = self.client.post(
+            "/api/notification-preferences/",
+            {"email_enabled": True, "sms_enabled": True, "in_app_enabled": True},
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(preference_response.status_code, status.HTTP_201_CREATED)
+
+        notifications = dispatch_notification(
+            recipient=self.member_user,
+            notification_type="general",
+            subject="Statement ready",
+            content="Your monthly statement is available.",
+            channels=["in_app", "email", "sms"],
+        )
+        self.assertEqual(len(notifications), 3)
+        self.assertEqual(len(mail.outbox), 1)
+        mocked_urlopen.assert_called()
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_announcement_broadcast_creates_notifications(self):
+        self.member_user.phone_number = "+254700123456"
+        self.member_user.save(update_fields=["phone_number"])
+
+        self.client.post(
+            "/api/notification-preferences/",
+            {"email_enabled": True, "sms_enabled": False, "in_app_enabled": True},
+            format="json",
+            **self._headers(),
+        )
+
+        announcement_response = self.client.post(
+            "/api/announcements/",
+            {
+                "title": "Inspection notice",
+                "message": "Quarterly inspections start next week.",
+                "send_email": True,
+                "send_sms": False,
+            },
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(announcement_response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(
+            Notification.objects.filter(
+                notification_type="announcement",
+                recipient=self.member_user,
+            ).exists()
+        )
+
+    @patch("apps.notifications.services.async_to_sync", side_effect=lambda fn: fn)
+    @patch("apps.notifications.services.get_channel_layer")
+    def test_notification_dispatch_emits_websocket_events(self, mocked_get_channel_layer, _mocked_async_to_sync):
+        channel_layer = MagicMock()
+        mocked_get_channel_layer.return_value = channel_layer
+
+        dispatch_notification(
+            recipient=self.member_user,
+            notification_type="general",
+            subject="Realtime notice",
+            content="A websocket payload should be emitted.",
+            channels=["in_app"],
+        )
+
+        channel_layer.group_send.assert_called()
+
+    def test_asgi_application_is_importable(self):
+        from config.asgi import application
+
+        self.assertIsNotNone(application)
