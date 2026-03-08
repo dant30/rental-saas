@@ -18,4 +18,10 @@ urlpatterns = [
 
     # Tenant onboarding
     path("api/tenants/", include("apps.tenants.urls")),
+
+    # Properties (tenant-scoped)
+    path("api/", include("apps.properties.urls")),
+
+    # Tenant rental management (residents + leases)
+    path("api/tenants/", include("apps.tenants_app.urls")),
 ]

@@ -6,13 +6,24 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from apps.tenants.models import Tenant
+from apps.tenants.models import Domain, Tenant
 from apps.accounts.models import User
 
 
 class TenantSignupTests(APITestCase):
     def setUp(self):
         self.url = reverse("tenant_signup")
+
+        # Ensure public schema is reachable during tests.
+        # django-tenants resolves host to tenant via Domain entries.
+        public_tenant, _ = Tenant.objects.get_or_create(
+            schema_name="public", defaults={"name": "Public"}
+        )
+        Domain.objects.get_or_create(
+            domain="testserver",
+            tenant=public_tenant,
+            defaults={"is_primary": True},
+        )
 
     @patch("apps.tenants.services.Tenant.create_schema")
     def test_signup_creates_tenant_and_admin(self, mock_create_schema):
@@ -65,3 +76,37 @@ class TenantSignupTests(APITestCase):
         response = self.client.post(self.url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("domain", response.data.get("detail", ""))
+
+    def test_signup_rejects_common_password(self):
+        payload = {
+            "schema_name": "acme",
+            "name": "Acme Properties",
+            "domain": "acme.localhost",
+            "admin_username": "admin2",
+            "admin_email": "admin2@acme.localhost",
+            "admin_password": "password",
+        }
+
+        response = self.client.post(self.url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("admin_password", response.data)
+
+    def test_signup_rejects_duplicate_username(self):
+        User.objects.create_user(
+            username="existing",
+            email="existing@acme.localhost",
+            password="SuperSecret123",
+        )
+
+        payload = {
+            "schema_name": "acme2",
+            "name": "Acme Properties 2",
+            "domain": "acme2.localhost",
+            "admin_username": "existing",
+            "admin_email": "existing2@acme.localhost",
+            "admin_password": "SuperSecret123",
+        }
+
+        response = self.client.post(self.url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("admin_username", response.data)
