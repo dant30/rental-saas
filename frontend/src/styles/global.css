@@ -1,8 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap");
 @import "./variables.css";
-@import "./animations.css";
 @import "./theme.css";
 @import "./components.css";
+@import "./animations.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+}
 
 *,
 *::before,
@@ -10,7 +19,14 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 html {
+  color-scheme: light;
   font-size: 16px;
   scroll-behavior: smooth;
 }
@@ -18,32 +34,85 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  font-family: var(--font-body);
-  line-height: 1.5;
+  background:
+    radial-gradient(1200px 700px at 0% -10%, #e6f3ff 0%, transparent 50%),
+    radial-gradient(1000px 620px at 100% -20%, #eef7ff 0%, transparent 50%),
+    var(--fm-color-bg);
+  color: var(--fm-color-text);
+  font-family: var(--fm-font-family-sans);
+  line-height: 1.45;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: inherit;
+  color: var(--fm-color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--fm-color-primary-strong);
 }
 
 button,
 input,
-textarea,
-select {
+select,
+textarea {
   font: inherit;
 }
 
-button {
-  cursor: pointer;
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--fm-font-family-mono);
+}
+
+:focus-visible {
+  outline: 2px solid var(--fm-color-primary);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--fm-color-primary-soft);
+  color: var(--fm-color-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.015em;
 }
 
 img {
-  max-width: 100%;
   display: block;
+  max-width: 100%;
 }
 
-#root {
-  min-height: 100vh;
+.ui-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+.ui-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.ui-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ui-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.ui-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.55);
 }

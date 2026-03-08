@@ -12,8 +12,8 @@ body {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(rgba(32, 36, 45, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(32, 36, 45, 0.04) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(16, 42, 67, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 42, 67, 0.04) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 80%);
   pointer-events: none;
@@ -26,21 +26,67 @@ body {
   backdrop-filter: blur(18px);
 }
 
-.surface-panel {
-  background: var(--bg-panel-strong);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-soft);
+.surface-panel,
+.theme-surface {
+  background: var(--fm-color-surface);
+  border: 1px solid var(--fm-color-border);
+  border-radius: var(--fm-radius-md);
+  box-shadow: var(--fm-shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.theme-surface-soft {
+  background: var(--fm-color-surface-soft);
+  border: 1px solid var(--fm-color-border);
+  border-radius: var(--fm-radius-md);
+}
+
+.theme-title {
+  color: var(--fm-color-text);
+  font-size: var(--fm-font-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.theme-subtitle {
+  color: var(--fm-color-text-soft);
+  font-size: var(--fm-font-sm);
+}
+
+.theme-kpi {
+  display: grid;
+  gap: var(--fm-space-2);
+  padding: var(--fm-space-4);
+  background: var(--fm-color-surface);
+  border: 1px solid var(--fm-color-border);
+  border-radius: var(--fm-radius-md);
+  box-shadow: var(--fm-shadow-sm);
+}
+
+.theme-stat {
+  color: #0f2740;
+  font-size: var(--fm-font-2xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.theme-caption {
+  color: var(--fm-color-text-muted);
+  font-size: var(--fm-font-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-ink-950), var(--color-mint-500));
+  background: linear-gradient(135deg, var(--fm-color-text), var(--fm-color-primary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 [data-theme="dark"] .text-gradient {
-  background: linear-gradient(135deg, var(--color-white), var(--color-mint-300));
+  background: linear-gradient(135deg, var(--color-white), #7fc6ee);
   -webkit-background-clip: text;
   background-clip: text;
 }

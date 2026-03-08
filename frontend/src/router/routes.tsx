@@ -1,11 +1,8 @@
-import { ReactNode } from "react";
-import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import type { ReactNode } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
-import Button from "../components/shared/Button";
-import { authTokenStorage } from "../core/api/axios";
 import { routePaths } from "../core/constants/routePaths";
-import { useToast } from "../core/contexts/ToastContext";
 import AdminDashboardPage from "../features/admin/pages/AdminDashboard";
 import ForgotPasswordPage from "../features/auth/pages/ForgotPassword";
 import LoginPage from "../features/auth/pages/Login";
@@ -23,7 +20,7 @@ import TenantDetailPage from "../features/tenants/pages/TenantDetail";
 import TenantListPage from "../features/tenants/pages/TenantList";
 import AdminRoute from "./AdminRoute";
 import FeatureGate from "./FeatureGate";
-import PrivateRoute, { clearStoredSession, getStoredSession, saveStoredSession } from "./PrivateRoute";
+import PrivateRoute, { getStoredSession } from "./PrivateRoute";
 
 const navItems = [
   { to: routePaths.dashboard, label: "Overview" },
@@ -37,54 +34,9 @@ const navItems = [
   { to: routePaths.admin, label: "Admin" },
 ];
 
-const AppShell = ({ children }: { children: ReactNode }) => {
-  const navigate = useNavigate();
-  const { pushToast } = useToast();
-  const session = getStoredSession();
-
-  return (
-    <MainLayout navItems={navItems}>
-      <div className="page-header">
-        <div>
-          <span className="eyebrow">Workspace</span>
-          <h1 className="page-title">Rental SaaS</h1>
-          <p className="page-subtitle">
-            Signed in as {session.name || session.email || session.role}. Routes below are backed by the Django APIs already built.
-          </p>
-        </div>
-        <div className="inline-actions">
-          <span className="status-badge status-badge--success">{session.role}</span>
-          <Button
-            onClick={() => {
-              authTokenStorage.clear();
-              clearStoredSession();
-              saveStoredSession({
-                isAuthenticated: false,
-                role: "tenant",
-                name: "",
-                email: "",
-                enabledFeatures: [],
-              });
-              pushToast("Signed out", "success");
-              navigate(routePaths.login, { replace: true });
-            }}
-            type="button"
-          >
-            Sign out
-          </Button>
-        </div>
-      </div>
-      <div className="inline-actions" style={{ marginBottom: "1rem", flexWrap: "wrap" }}>
-        {navItems.map((item) => (
-          <NavLink className="nav-link" key={item.to} to={item.to}>
-            {item.label}
-          </NavLink>
-        ))}
-      </div>
-      {children}
-    </MainLayout>
-  );
-};
+const AppShell = ({ children }: { children: ReactNode }) => (
+  <MainLayout navItems={navItems}>{children}</MainLayout>
+);
 
 const TenantPortalPage = () => (
   <>
@@ -100,38 +52,48 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path={routePaths.root} element={<Navigate replace to={session.isAuthenticated ? routePaths.dashboard : routePaths.login} />} />
-      <Route path={routePaths.login} element={<LoginPage />} />
-      <Route path={routePaths.register} element={<RegisterPage />} />
-      <Route path={routePaths.forgotPassword} element={<ForgotPasswordPage />} />
+      <Route
+        element={
+          <Navigate
+            replace
+            to={session.isAuthenticated ? routePaths.dashboard : routePaths.login}
+          />
+        }
+        path={routePaths.root}
+      />
+      <Route element={<LoginPage />} path={routePaths.login} />
+      <Route element={<RegisterPage />} path={routePaths.register} />
+      <Route element={<ForgotPasswordPage />} path={routePaths.forgotPassword} />
 
       <Route element={<PrivateRoute />}>
-        <Route path={routePaths.dashboard} element={<AppShell><DashboardPage /></AppShell>} />
-        <Route path={routePaths.properties} element={<AppShell><PropertyListPage /></AppShell>} />
-        <Route path="/app/properties/:id" element={<AppShell><PropertyDetailPage /></AppShell>} />
-        <Route path={routePaths.tenants} element={<AppShell><TenantListPage /></AppShell>} />
-        <Route path="/app/tenants/:id" element={<AppShell><TenantDetailPage /></AppShell>} />
-        <Route path={routePaths.payments} element={<AppShell><PaymentListPage /></AppShell>} />
-        <Route path={routePaths.arrears} element={<AppShell><ArrearsPage /></AppShell>} />
-        <Route path={routePaths.expenses} element={<AppShell><ExpenseListPage /></AppShell>} />
-        <Route path="/app/expenses/new" element={<AppShell><ExpenseFormPage /></AppShell>} />
-        <Route path={routePaths.notifications} element={<AppShell><NotificationsPage /></AppShell>} />
-        <Route path={routePaths.maintenance} element={<AppShell><CaretakerListPage /></AppShell>} />
+        <Route element={<AppShell><DashboardPage /></AppShell>} path={routePaths.dashboard} />
+        <Route element={<AppShell><PropertyListPage /></AppShell>} path={routePaths.properties} />
+        <Route element={<AppShell><PropertyDetailPage /></AppShell>} path="/app/properties/:id" />
+        <Route element={<AppShell><TenantListPage /></AppShell>} path={routePaths.tenants} />
+        <Route element={<AppShell><TenantDetailPage /></AppShell>} path="/app/tenants/:id" />
+        <Route element={<AppShell><PaymentListPage /></AppShell>} path={routePaths.payments} />
+        <Route element={<AppShell><ArrearsPage /></AppShell>} path={routePaths.arrears} />
+        <Route element={<AppShell><ExpenseListPage /></AppShell>} path={routePaths.expenses} />
+        <Route element={<AppShell><ExpenseFormPage /></AppShell>} path="/app/expenses/new" />
+        <Route element={<AppShell><NotificationsPage /></AppShell>} path={routePaths.notifications} />
+        <Route element={<AppShell><CaretakerListPage /></AppShell>} path={routePaths.maintenance} />
         <Route
-          path={routePaths.tenantPortal}
           element={
             <FeatureGate feature="tenant_portal">
-              <AppShell><TenantPortalPage /></AppShell>
+              <AppShell>
+                <TenantPortalPage />
+              </AppShell>
             </FeatureGate>
           }
+          path={routePaths.tenantPortal}
         />
       </Route>
 
       <Route element={<AdminRoute />}>
-        <Route path={routePaths.admin} element={<AppShell><AdminDashboardPage /></AppShell>} />
+        <Route element={<AppShell><AdminDashboardPage /></AppShell>} path={routePaths.admin} />
       </Route>
 
-      <Route path="*" element={<Navigate replace to={routePaths.root} />} />
+      <Route element={<Navigate replace to={routePaths.root} />} path="*" />
     </Routes>
   );
 };

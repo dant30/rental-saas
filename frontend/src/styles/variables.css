@@ -1,7 +1,30 @@
 :root {
-  --font-display: "Sora", "Segoe UI", sans-serif;
-  --font-body: "Manrope", "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "Cascadia Code", monospace;
+  --fm-font-family-sans: "Space Grotesk", "Segoe UI", sans-serif;
+  --fm-font-family-mono: "JetBrains Mono", "Cascadia Code", monospace;
+  --font-display: var(--fm-font-family-sans);
+  --font-body: var(--fm-font-family-sans);
+  --font-mono: var(--fm-font-family-mono);
+  --fm-color-primary: #0b69a3;
+  --fm-color-primary-strong: #0a4f7a;
+  --fm-color-primary-soft: #d8ecff;
+  --fm-color-bg: #f8fbff;
+  --fm-color-surface: rgba(255, 255, 255, 0.92);
+  --fm-color-surface-soft: rgba(248, 250, 252, 0.86);
+  --fm-color-border: rgba(16, 42, 67, 0.1);
+  --fm-color-text: #102a43;
+  --fm-color-text-soft: rgba(16, 42, 67, 0.72);
+  --fm-color-text-muted: rgba(16, 42, 67, 0.58);
+  --fm-shadow-sm: 0 12px 30px rgba(16, 42, 67, 0.08);
+  --fm-shadow-md: 0 18px 50px rgba(16, 42, 67, 0.12);
+  --fm-radius-sm: 10px;
+  --fm-radius-md: 18px;
+  --fm-space-2: 0.5rem;
+  --fm-space-4: 1rem;
+  --fm-font-xs: 0.75rem;
+  --fm-font-sm: 0.875rem;
+  --fm-font-md: 1rem;
+  --fm-font-lg: 1.125rem;
+  --fm-font-2xl: 1.75rem;
   --color-ink-950: #16181d;
   --color-ink-900: #20242d;
   --color-ink-800: #2c3440;
@@ -14,19 +37,20 @@
   --color-red-500: #d85f5f;
   --color-blue-500: #4e88da;
   --color-white: #ffffff;
-  --bg-page: radial-gradient(circle at top left, rgba(127, 209, 185, 0.25), transparent 28%),
-    radial-gradient(circle at top right, rgba(217, 164, 65, 0.22), transparent 22%),
-    linear-gradient(180deg, #f9f4ea 0%, #f1e8d8 100%);
-  --bg-panel: rgba(255, 255, 255, 0.72);
-  --bg-panel-strong: rgba(255, 255, 255, 0.92);
+  --bg-page:
+    radial-gradient(1200px 700px at 0% -10%, #e6f3ff 0%, transparent 50%),
+    radial-gradient(1000px 620px at 100% -20%, #eef7ff 0%, transparent 50%),
+    var(--fm-color-bg);
+  --bg-panel: var(--fm-color-surface);
+  --bg-panel-strong: var(--fm-color-surface);
   --bg-dark: rgba(22, 24, 29, 0.9);
-  --border-soft: rgba(32, 36, 45, 0.08);
-  --border-strong: rgba(32, 36, 45, 0.16);
-  --shadow-soft: 0 18px 50px rgba(27, 31, 38, 0.08);
-  --shadow-strong: 0 24px 80px rgba(27, 31, 38, 0.16);
-  --text-primary: var(--color-ink-950);
-  --text-secondary: rgba(32, 36, 45, 0.72);
-  --text-muted: rgba(32, 36, 45, 0.54);
+  --border-soft: var(--fm-color-border);
+  --border-strong: rgba(16, 42, 67, 0.18);
+  --shadow-soft: var(--fm-shadow-sm);
+  --shadow-strong: var(--fm-shadow-md);
+  --text-primary: var(--fm-color-text);
+  --text-secondary: var(--fm-color-text-soft);
+  --text-muted: var(--fm-color-text-muted);
   --text-inverse: rgba(255, 255, 255, 0.94);
   --success: #2e946d;
   --warning: #b27b18;

@@ -1,3 +1,191 @@
+.ui-button {
+  border: 1px solid transparent;
+  border-radius: var(--fm-radius-sm);
+  min-height: 2.4rem;
+  padding: 0.55rem 0.9rem;
+  font-size: var(--fm-font-sm);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.08);
+}
+
+.ui-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.ui-button:hover:not(:disabled) {
+  filter: brightness(0.98);
+  box-shadow: 0 5px 14px rgba(2, 6, 23, 0.14);
+}
+
+.ui-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ui-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(11, 105, 163, 0.22), 0 4px 12px rgba(2, 6, 23, 0.14);
+}
+
+.ui-input,
+.ui-select,
+.ui-datepicker,
+.ui-control {
+  width: 100%;
+  border: 1px solid var(--fm-color-border);
+  border-radius: var(--fm-radius-sm);
+  background: #fff;
+  color: var(--fm-color-text);
+  min-height: 2.4rem;
+  padding: 0.55rem 0.72rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ui-select {
+  padding-right: 2rem;
+  background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+  background-position: calc(100% - 16px) calc(1em + 1px), calc(100% - 11px) calc(1em + 1px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  appearance: none;
+}
+
+.ui-input::placeholder {
+  color: #94a3b8;
+}
+
+.ui-input:focus,
+.ui-select:focus,
+.ui-datepicker:focus,
+.ui-control:focus,
+.ui-control:focus-within {
+  border-color: var(--fm-color-primary);
+  box-shadow: 0 0 0 3px rgba(11, 105, 163, 0.14);
+  outline: none;
+}
+
+.ui-input:disabled,
+.ui-select:disabled,
+.ui-datepicker:disabled,
+.ui-control:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.ui-card,
+.card {
+  background: var(--fm-color-surface);
+  border: 1px solid var(--fm-color-border);
+  border-radius: var(--fm-radius-md);
+  box-shadow: var(--fm-shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ui-card:hover,
+.card:hover {
+  box-shadow: var(--fm-shadow-md);
+  transform: translateY(-1px);
+}
+
+.ui-card-header,
+.ui-card-footer,
+.card-header,
+.card-footer {
+  padding: var(--fm-space-4);
+  border-bottom: 1px solid var(--fm-color-border);
+}
+
+.ui-card-footer,
+.card-footer {
+  border-bottom: 0;
+  border-top: 1px solid var(--fm-color-border);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.35), rgba(248, 250, 252, 0.8));
+}
+
+.ui-card-body,
+.card-body {
+  padding: var(--fm-space-4);
+}
+
+.ui-table,
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fm-font-sm);
+}
+
+.ui-table th,
+.ui-table td,
+.app-table th,
+.app-table td {
+  text-align: left;
+  vertical-align: middle;
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--fm-color-border);
+}
+
+.ui-table thead th,
+.app-table thead th {
+  font-size: var(--fm-font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fm-color-text-soft);
+  background: var(--fm-color-surface-soft);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.ui-table tbody tr,
+.app-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.ui-table tbody tr:nth-child(2n),
+.app-table tbody tr:nth-child(2n) {
+  background: rgba(148, 163, 184, 0.04);
+}
+
+.ui-table tbody tr:hover,
+.app-table tbody tr:hover {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.ui-chart-shell {
+  position: relative;
+  border: 1px solid var(--fm-color-border);
+  border-radius: var(--fm-radius-md);
+  background: var(--fm-color-surface);
+  padding: var(--fm-space-4);
+  box-shadow: var(--fm-shadow-sm);
+}
+
+.ui-page-section {
+  border: 1px solid var(--fm-color-border);
+  border-radius: var(--fm-radius-md);
+  background: var(--fm-color-surface);
+  box-shadow: var(--fm-shadow-sm);
+}
+
+.ui-section-title {
+  font-size: var(--fm-font-md);
+  font-weight: 700;
+  color: var(--fm-color-text);
+  letter-spacing: -0.01em;
+}
+
+.ui-chart-grid {
+  stroke: var(--fm-color-border);
+  stroke-width: 1;
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
