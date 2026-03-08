@@ -1,5 +1,5 @@
 import { useDeferredValue, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
@@ -26,6 +26,8 @@ const CaretakerListPage = () => {
   const activeCount = items.filter((item) => (item.status || "").toLowerCase() === "active").length;
   const skilledCount = items.filter((item) => !!item.skills).length;
 
+  const navigate = useNavigate();
+
   const columns: TableColumn<CaretakerRecord>[] = [
     {
       key: "caretaker",
@@ -35,9 +37,20 @@ const CaretakerListPage = () => {
     { key: "phone", header: "Phone", render: (item) => item.phone_number || "--" },
     { key: "skills", header: "Skills", render: (item) => item.skills || "General operations" },
     { key: "status", header: "Status", render: (item) => item.status || "active" },
+    {
+      key: "actions",
+      header: "",
+      render: (item) => (
+        <Link
+          className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+          onClick={(event) => event.stopPropagation()}
+          to={`/app/maintenance/${item.id}`}
+        >
+          Edit
+        </Link>
+      ),
+    },
   ];
-
-  const navigate = useNavigate();
 
   return (
     <>
@@ -79,7 +92,12 @@ const CaretakerListPage = () => {
         </div>
         <div style={{ marginTop: "1rem" }}>
           {filteredItems.length ? (
-            <Table columns={columns} data={filteredItems} rowKey={(item) => String(item.id)} />
+            <Table
+              columns={columns}
+              data={filteredItems}
+              rowKey={(item) => String(item.id)}
+              onRowClick={(item) => navigate(`/app/maintenance/${item.id}`)}
+            />
           ) : (
             <EmptyState
               description="Try a different query or onboard your first caretaker."

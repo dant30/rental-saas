@@ -1,5 +1,5 @@
-import { useDeferredValue, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useDeferredValue, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
@@ -46,6 +46,19 @@ const PropertyListPage = () => {
       key: "units",
       header: "Units",
       render: (property) => String(property.total_units || 0),
+    },
+    {
+      key: "actions",
+      header: "",
+      render: (property) => (
+        <Link
+          className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+          onClick={(event) => event.stopPropagation()}
+          to={`/app/properties/${property.id}`}
+        >
+          Edit
+        </Link>
+      ),
     },
   ];
 
@@ -95,7 +108,12 @@ const PropertyListPage = () => {
           {status === "loading" ? (
             <p className="theme-subtitle">Loading properties...</p>
           ) : filteredItems.length ? (
-            <Table columns={columns} data={filteredItems} rowKey={(property) => String(property.id)} />
+            <Table
+              columns={columns}
+              data={filteredItems}
+              rowKey={(property) => String(property.id)}
+              onRowClick={(property) => navigate(`/app/properties/${property.id}`)}
+            />
           ) : (
             <EmptyState
               description="Try a different search term or add your first property."

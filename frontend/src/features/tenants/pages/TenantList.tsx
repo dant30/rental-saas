@@ -1,5 +1,5 @@
 import { useDeferredValue, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
@@ -47,6 +47,19 @@ const TenantListPage = () => {
       header: "Status",
       render: (tenant) => tenant.status || "active",
     },
+    {
+      key: "actions",
+      header: "",
+      render: (tenant) => (
+        <Link
+          className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+          onClick={(event) => event.stopPropagation()}
+          to={`/app/tenants/${tenant.id}`}
+        >
+          Edit
+        </Link>
+      ),
+    },
   ];
 
   const navigate = useNavigate();
@@ -93,7 +106,12 @@ const TenantListPage = () => {
           {status === "loading" ? (
             <p className="theme-subtitle">Loading residents...</p>
           ) : filteredItems.length ? (
-            <Table columns={columns} data={filteredItems} rowKey={(tenant) => String(tenant.id)} />
+            <Table
+              columns={columns}
+              data={filteredItems}
+              rowKey={(tenant) => String(tenant.id)}
+              onRowClick={(tenant) => navigate(`/app/tenants/${tenant.id}`)}
+            />
           ) : (
             <EmptyState
               description="Try a broader query or onboard your first resident."
