@@ -158,9 +158,11 @@ class NotificationAPITests(TenantTestCase):
         EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
         DEFAULT_FROM_EMAIL="no-reply@test.local",
         SMS_PROVIDER="twilio",
+        WHATSAPP_PROVIDER="twilio",
         TWILIO_ACCOUNT_SID="AC123",
         TWILIO_AUTH_TOKEN="secret",
         TWILIO_FROM_NUMBER="+15550000000",
+        TWILIO_WHATSAPP_FROM="+15550000001",
     )
     @patch("apps.notifications.services.urllib_request.urlopen")
     def test_multi_channel_delivery(self, mocked_urlopen):
@@ -175,7 +177,7 @@ class NotificationAPITests(TenantTestCase):
         self.client.force_authenticate(self.member_user)
         preference_response = self.client.post(
             "/api/notification-preferences/",
-            {"email_enabled": True, "sms_enabled": True, "in_app_enabled": True},
+            {"email_enabled": True, "sms_enabled": True, "whatsapp_enabled": True, "in_app_enabled": True},
             format="json",
             **self._headers(),
         )
@@ -186,11 +188,11 @@ class NotificationAPITests(TenantTestCase):
             notification_type="general",
             subject="Statement ready",
             content="Your monthly statement is available.",
-            channels=["in_app", "email", "sms"],
+            channels=["in_app", "email", "sms", "whatsapp"],
         )
-        self.assertEqual(len(notifications), 3)
+        self.assertEqual(len(notifications), 4)
         self.assertEqual(len(mail.outbox), 1)
-        mocked_urlopen.assert_called()
+        self.assertEqual(mocked_urlopen.call_count, 2)
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_announcement_broadcast_creates_notifications(self):
@@ -211,6 +213,7 @@ class NotificationAPITests(TenantTestCase):
                 "message": "Quarterly inspections start next week.",
                 "send_email": True,
                 "send_sms": False,
+                "send_whatsapp": False,
             },
             format="json",
             **self._headers(),

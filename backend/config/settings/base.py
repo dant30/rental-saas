@@ -172,9 +172,16 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@rentalsaas.local")
 FRONTEND_PASSWORD_RESET_URL = os.getenv("FRONTEND_PASSWORD_RESET_URL", "")
 SMS_PROVIDER = os.getenv("SMS_PROVIDER", "console")
+WHATSAPP_PROVIDER = os.getenv("WHATSAPP_PROVIDER", "console")
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
 TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER", "")
+TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "")
+
+# OCR
+OCR_PROVIDER = os.getenv("OCR_PROVIDER", "mock")
+OCR_SPACE_API_KEY = os.getenv("OCR_SPACE_API_KEY", "")
+OCR_SPACE_ENDPOINT = os.getenv("OCR_SPACE_ENDPOINT", "https://api.ocr.space/parse/image")
 
 # M-Pesa
 MPESA_PROVIDER = os.getenv("MPESA_PROVIDER", "mock")
@@ -221,6 +228,10 @@ CELERY_BEAT_SCHEDULE = {
     "create-preventive-work-orders": {
         "task": "apps.caretakers.tasks.create_preventive_work_orders_task",
         "schedule": 86400.0,
+    },
+    "retry-payment-webhooks": {
+        "task": "apps.payments.tasks.retry_gateway_transactions_task",
+        "schedule": 300.0,
     },
 }
 

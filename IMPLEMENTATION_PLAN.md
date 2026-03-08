@@ -104,9 +104,9 @@ Recurring invoices `✅✅`
 - `✅✅` Overdue syncing and arrears syncing exist.
 - `✅✅` Invoice reminder notification workflow exists.
 
-Expense tracking `❌❌`
+Expense tracking `✅✅`
 - `✅✅` Expense model and CRUD API exist.
-- `❌❌` OCR receipt scanning is not implemented.
+- `✅✅` OCR receipt scanning pipeline and receipt metadata extraction are implemented.
 
 Financial reports `✅✅`
 - `✅✅` Rent roll endpoint exists.
@@ -147,7 +147,7 @@ Goal: Build a robust notification system and internal messaging.
 Notifications app `✅✅`
 - `✅✅` Notification, preference, template, announcement, conversation, and message models exist.
 - `✅✅` Service layer exists for in-app, email, and SMS delivery.
-- `❌❌` WhatsApp delivery is not implemented.
+- `✅✅` WhatsApp delivery is implemented with provider-backed dispatch support.
 
 Template management `✅✅`
 - `✅✅` Notification templates with variable rendering exist.
@@ -205,15 +205,15 @@ Deliverables `❌❌`
 15.3 Third-Party Integrations Checklist `❌❌`
 - `✅✅` M-Pesa integration and webhook handling are implemented.
 - `❌❌` Stripe Connect is intentionally not implemented.
-- `❌❌` Twilio/SendGrid are only code-path capable; not fully deployed/verified as live integrations.
+- `❌❌` Twilio/SendGrid are code-path capable for SMS/WhatsApp/email, but not fully deployed/verified as live integrations.
 - `❌❌` DocuSign/HelloSign are not implemented.
 - `❌❌` Checkr is not implemented.
 - `❌❌` QuickBooks/Xero are not implemented.
 - `❌❌` AWS S3 is not implemented.
 
 15.4 Risk Management `❌❌`
-- `❌❌` Formal tenant isolation audit tooling is not implemented.
-- `❌❌` Payment webhook retry logic is not implemented.
+- `✅✅` Formal tenant isolation audit tooling is implemented via management command coverage.
+- `✅✅` Payment webhook retry logic and retry metadata are implemented.
 - `❌❌` Scaling architecture items are not implemented.
 
 Current overall project status `❌❌`
@@ -223,6 +223,8 @@ Current overall project status `❌❌`
 - `✅✅` Maintenance auto-assignment and preventive work-order automation now exist.
 - `✅✅` Multi-channel notification delivery for in-app/email/SMS now exists.
 - `✅✅` M-Pesa and bank payment workflows now exist.
+- `✅✅` OCR expense receipt scanning now exists.
 - `✅✅` Tenant, caretaker, and owner portal APIs now exist.
 - `✅✅` Real-time messaging and notification websocket delivery now exist.
+- `✅✅` WhatsApp delivery and tenant isolation auditing now exist.
 - `❌❌` The full implementation plan is still not complete.

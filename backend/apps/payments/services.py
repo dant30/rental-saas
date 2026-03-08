@@ -2,13 +2,17 @@
 
 import base64
 import json
+import re
+from datetime import timedelta
 from calendar import monthrange
 from decimal import Decimal
 from urllib import error, parse, request as urllib_request
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import Sum
+from django.utils.dateparse import parse_date
 from django.utils import timezone
 
 from apps.payments.models import Arrear, Expense, Invoice, Payment, PaymentGatewayTransaction
@@ -44,6 +48,18 @@ def get_gateway_transaction_queryset_for_user(user):
         "property",
         "unit",
     )
+
+
+def get_retryable_gateway_transactions(*, now=None):
+    now = now or timezone.now()
+    return PaymentGatewayTransaction.objects.filter(
+        status__in=[
+            PaymentGatewayTransaction.Status.PENDING,
+            PaymentGatewayTransaction.Status.PROCESSING,
+            PaymentGatewayTransaction.Status.FAILED,
+        ],
+        retry_count__lt=models.F("max_retry_count"),
+    ).filter(models.Q(next_retry_at__isnull=True) | models.Q(next_retry_at__lte=now))
 
 
 def get_arrear_queryset_for_user(user):
@@ -85,6 +101,189 @@ def save_arrear_for_user(serializer, user):
 
 def save_expense_for_user(serializer, user):
     return serializer.save(tenant=user.tenant, submitted_by=user)
+
+
+def _safe_decode_receipt(expense: Expense):
+    if not expense.receipt:
+        raise ValidationError("Expense has no receipt file to scan.")
+    expense.receipt.open("rb")
+    try:
+        raw_bytes = expense.receipt.read()
+    finally:
+        expense.receipt.close()
+    for encoding in ("utf-8", "latin-1"):
+        try:
+            return raw_bytes.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw_bytes.decode("utf-8", errors="ignore")
+
+
+def _extract_detected_amount(text: str):
+    matches = re.findall(r"(?<!\d)(?:KES|KSH|KSHS|USD)?\s*([0-9]+(?:[.,][0-9]{2})?)", text, flags=re.IGNORECASE)
+    if not matches:
+        return None
+    value = matches[-1].replace(",", "")
+    try:
+        return Decimal(value)
+    except Exception:
+        return None
+
+
+def _extract_detected_date(text: str):
+    patterns = [
+        r"(\d{4}-\d{2}-\d{2})",
+        r"(\d{2}/\d{2}/\d{4})",
+        r"(\d{2}-\d{2}-\d{4})",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, text)
+        if not match:
+            continue
+        token = match.group(1)
+        if "/" in token:
+            day, month, year = token.split("/")
+            candidate = parse_date(f"{year}-{month}-{day}")
+        elif re.match(r"\d{2}-\d{2}-\d{4}$", token):
+            day, month, year = token.split("-")
+            candidate = parse_date(f"{year}-{month}-{day}")
+        else:
+            candidate = parse_date(token)
+        if candidate:
+            return candidate
+    return None
+
+
+def _extract_detected_vendor(text: str):
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    if not lines:
+        return ""
+    return lines[0][:255]
+
+
+def _mock_ocr_payload(expense: Expense):
+    text = "\n".join(
+        filter(
+            None,
+            [
+                expense.vendor_name,
+                expense.title,
+                expense.description,
+                f"Amount {expense.amount}",
+                f"Date {expense.expense_date}",
+            ],
+        )
+    )
+    return {
+        "provider": Expense.OCRProvider.MOCK,
+        "text": text,
+        "raw_payload": {"source": "mock", "expense_id": expense.pk},
+    }
+
+
+def _text_receipt_payload(expense: Expense):
+    text = _safe_decode_receipt(expense)
+    return {
+        "provider": Expense.OCRProvider.TEXT,
+        "text": text,
+        "raw_payload": {"source": "text", "length": len(text)},
+    }
+
+
+def _ocr_space_payload(expense: Expense):
+    api_key = getattr(settings, "OCR_SPACE_API_KEY", "")
+    if not api_key:
+        raise ValidationError("OCR.Space API key is not configured.")
+    if not expense.receipt:
+        raise ValidationError("Expense has no receipt file to scan.")
+
+    expense.receipt.open("rb")
+    try:
+        receipt_bytes = expense.receipt.read()
+    finally:
+        expense.receipt.close()
+
+    boundary = "----RentalSaaSOCRBoundary"
+    filename = expense.receipt.name.split("/")[-1]
+    parts = [
+        f"--{boundary}",
+        'Content-Disposition: form-data; name="apikey"',
+        "",
+        api_key,
+        f"--{boundary}",
+        'Content-Disposition: form-data; name="language"',
+        "",
+        "eng",
+        f"--{boundary}",
+        f'Content-Disposition: form-data; name="file"; filename="{filename}"',
+        "Content-Type: application/octet-stream",
+        "",
+    ]
+    body = "\r\n".join(parts).encode("utf-8") + receipt_bytes + f"\r\n--{boundary}--\r\n".encode("utf-8")
+    req = urllib_request.Request(
+        getattr(settings, "OCR_SPACE_ENDPOINT", "https://api.ocr.space/parse/image"),
+        data=body,
+        method="POST",
+    )
+    req.add_header("Content-Type", f"multipart/form-data; boundary={boundary}")
+    with urllib_request.urlopen(req, timeout=30) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    text = "\n".join(item.get("ParsedText", "") for item in payload.get("ParsedResults", []))
+    return {
+        "provider": Expense.OCRProvider.OCR_SPACE,
+        "text": text.strip(),
+        "raw_payload": payload,
+    }
+
+
+def scan_expense_receipt(*, expense: Expense, provider: str | None = None):
+    if provider:
+        expense.ocr_provider = provider
+
+    expense.ocr_status = Expense.OCRStatus.PROCESSING
+    expense.ocr_failure_reason = ""
+    expense.save(update_fields=["ocr_provider", "ocr_status", "ocr_failure_reason", "updated_at"])
+
+    try:
+        if expense.ocr_provider == Expense.OCRProvider.TEXT:
+            payload = _text_receipt_payload(expense)
+        elif expense.ocr_provider == Expense.OCRProvider.OCR_SPACE:
+            payload = _ocr_space_payload(expense)
+        else:
+            payload = _mock_ocr_payload(expense)
+
+        text = payload["text"].strip()
+        expense.ocr_status = Expense.OCRStatus.SUCCEEDED
+        expense.ocr_scanned_at = timezone.now()
+        expense.ocr_extracted_text = text
+        expense.ocr_raw_payload = payload["raw_payload"]
+        expense.detected_vendor_name = _extract_detected_vendor(text)
+        expense.detected_amount = _extract_detected_amount(text)
+        expense.detected_expense_date = _extract_detected_date(text)
+        expense.ocr_failure_reason = ""
+        expense.save(
+            update_fields=[
+                "ocr_status",
+                "ocr_provider",
+                "ocr_scanned_at",
+                "ocr_extracted_text",
+                "ocr_raw_payload",
+                "detected_vendor_name",
+                "detected_amount",
+                "detected_expense_date",
+                "ocr_failure_reason",
+                "updated_at",
+            ]
+        )
+    except Exception as exc:
+        expense.ocr_status = Expense.OCRStatus.FAILED
+        expense.ocr_failure_reason = str(exc)
+        expense.ocr_scanned_at = timezone.now()
+        expense.save(
+            update_fields=["ocr_status", "ocr_failure_reason", "ocr_scanned_at", "updated_at"]
+        )
+        raise
+    return expense
 
 
 def build_invoice_number(*, tenant_id: int, billing_date, lease_id: int) -> str:
@@ -388,6 +587,7 @@ def process_mpesa_callback(*, callback_payload):
     stk_callback = callback_payload.get("Body", {}).get("stkCallback", {})
     checkout_request_id = stk_callback.get("CheckoutRequestID", "")
     merchant_request_id = stk_callback.get("MerchantRequestID", "")
+    webhook_event_id = stk_callback.get("CheckoutRequestID", "") or stk_callback.get("MerchantRequestID", "")
     transaction = PaymentGatewayTransaction.objects.filter(
         checkout_request_id=checkout_request_id
     ).first()
@@ -397,11 +597,17 @@ def process_mpesa_callback(*, callback_payload):
         ).first()
     if transaction is None:
         raise ValidationError("MPesa transaction could not be matched to an initiated request.")
+    if transaction.callback_received_at and transaction.result_code == str(stk_callback.get("ResultCode", "")):
+        return transaction
 
     transaction.callback_payload = callback_payload
+    transaction.callback_received_at = timezone.now()
+    transaction.webhook_event_id = webhook_event_id
     transaction.result_code = str(stk_callback.get("ResultCode", ""))
     transaction.result_description = stk_callback.get("ResultDesc", "")
     transaction.processed_at = timezone.now()
+    transaction.last_webhook_error = ""
+    transaction.next_retry_at = None
 
     if transaction.result_code == "0":
         metadata_items = stk_callback.get("CallbackMetadata", {}).get("Item", [])
@@ -441,22 +647,67 @@ def process_mpesa_callback(*, callback_payload):
         transaction.completed_at = timezone.now()
     else:
         transaction.status = PaymentGatewayTransaction.Status.FAILED
+        transaction.retry_count += 1
+        transaction.last_webhook_error = transaction.result_description
+        if transaction.retry_count < transaction.max_retry_count:
+            transaction.next_retry_at = timezone.now() + timedelta(minutes=5 * transaction.retry_count)
 
     transaction.save(
         update_fields=[
             "payment",
             "callback_payload",
+            "callback_received_at",
+            "webhook_event_id",
             "result_code",
             "result_description",
             "status",
             "gateway_transaction_id",
             "phone_number",
+            "retry_count",
+            "next_retry_at",
+            "last_webhook_error",
             "processed_at",
             "completed_at",
             "updated_at",
         ]
     )
     return transaction
+
+
+def retry_gateway_transaction(*, transaction: PaymentGatewayTransaction):
+    transaction.retry_count += 1
+    transaction.last_retry_at = timezone.now()
+    transaction.next_retry_at = None
+    if transaction.callback_payload:
+        try:
+            result = process_mpesa_callback(callback_payload=transaction.callback_payload)
+            result.last_retry_at = transaction.last_retry_at
+            result.last_webhook_error = ""
+            result.save(update_fields=["last_retry_at", "last_webhook_error", "updated_at"])
+            return result
+        except Exception as exc:
+            transaction.last_webhook_error = str(exc)
+    else:
+        transaction.last_webhook_error = "No callback payload available for retry."
+
+    if transaction.retry_count >= transaction.max_retry_count:
+        transaction.next_retry_at = None
+    else:
+        transaction.next_retry_at = timezone.now() + timedelta(minutes=5 * transaction.retry_count)
+    transaction.save(
+        update_fields=["retry_count", "last_retry_at", "last_webhook_error", "next_retry_at", "updated_at"]
+    )
+    return transaction
+
+
+def retry_due_gateway_transactions(*, now=None):
+    now = now or timezone.now()
+    retried = []
+    for transaction in get_retryable_gateway_transactions(now=now):
+        if transaction.status == PaymentGatewayTransaction.Status.SUCCEEDED:
+            continue
+        retried.append(retry_gateway_transaction(transaction=transaction))
+    return retried
 
 
 def generate_monthly_invoices(*, billing_date=None, tenant=None):

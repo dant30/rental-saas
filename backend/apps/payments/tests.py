@@ -4,6 +4,7 @@ import datetime
 from decimal import Decimal
 
 from django.core.management import call_command
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django_tenants.test.cases import TenantTestCase
 from rest_framework import status
@@ -11,7 +12,7 @@ from rest_framework.test import APIClient
 
 from apps.accounts.models import User
 from apps.notifications.models import Notification
-from apps.payments.models import Invoice, Payment, PaymentGatewayTransaction
+from apps.payments.models import Expense, Invoice, Payment, PaymentGatewayTransaction
 from apps.payments.services import (
     build_aged_receivables_report,
     build_property_profit_and_loss_report,
@@ -385,3 +386,69 @@ class PaymentsAPITests(TenantTestCase):
         self.assertEqual(response.data["gateway"], PaymentGatewayTransaction.Gateway.BANK)
         invoice.refresh_from_db()
         self.assertEqual(invoice.status, Invoice.InvoiceStatus.PAID)
+
+    def test_expense_receipt_ocr_scan_endpoint(self):
+        expense = Expense.objects.create(
+            tenant=self.tenant,
+            property=self.property,
+            unit=self.unit,
+            category="maintenance",
+            title="Hardware store receipt",
+            amount=Decimal("150.00"),
+            expense_date=datetime.date(2026, 3, 4),
+            vendor_name="BuildMart",
+            submitted_by=self.admin_user,
+            receipt=SimpleUploadedFile(
+                "receipt.txt",
+                b"BuildMart\nReceipt 2026-03-04\nKES 150.00\nThank you",
+                content_type="text/plain",
+            ),
+        )
+        response = self.client.post(
+            f"/api/expenses/{expense.id}/scan_receipt/",
+            {"provider": "text"},
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        expense.refresh_from_db()
+        self.assertEqual(expense.ocr_status, Expense.OCRStatus.SUCCEEDED)
+        self.assertEqual(expense.detected_vendor_name, "BuildMart")
+        self.assertEqual(expense.detected_amount, Decimal("150.00"))
+
+    def test_failed_mpesa_callback_sets_retry_metadata(self):
+        transaction = PaymentGatewayTransaction.objects.create(
+            tenant=self.tenant,
+            lease=self.lease,
+            resident=self.resident,
+            invoice=None,
+            property=self.property,
+            unit=self.unit,
+            gateway=PaymentGatewayTransaction.Gateway.MPESA,
+            transaction_type=PaymentGatewayTransaction.TransactionType.STK_PUSH,
+            status=PaymentGatewayTransaction.Status.PENDING,
+            amount=Decimal("1200.00"),
+            external_reference="MPESA-FAIL-1",
+            merchant_request_id="merchant-fail-1",
+            checkout_request_id="checkout-fail-1",
+        )
+        response = self.client.post(
+            "/api/payments/mpesa/webhook/",
+            {
+                "Body": {
+                    "stkCallback": {
+                        "MerchantRequestID": "merchant-fail-1",
+                        "CheckoutRequestID": "checkout-fail-1",
+                        "ResultCode": 1032,
+                        "ResultDesc": "Request cancelled by user",
+                    }
+                }
+            },
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        transaction.refresh_from_db()
+        self.assertEqual(transaction.status, PaymentGatewayTransaction.Status.FAILED)
+        self.assertEqual(transaction.retry_count, 1)
+        self.assertIsNotNone(transaction.next_retry_at)

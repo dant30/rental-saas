@@ -237,6 +237,43 @@ def deliver_sms_notification(*, recipient, content: str):
         return
 
 
+def deliver_whatsapp_notification(*, recipient, content: str):
+    provider = getattr(settings, "WHATSAPP_PROVIDER", "console")
+    phone_number = getattr(recipient, "phone_number", "") or ""
+    if not phone_number:
+        raise ValueError("Recipient has no phone number for WhatsApp delivery.")
+
+    if provider == "console":
+        return
+    if provider != "twilio":
+        raise ValueError(f"Unsupported WhatsApp provider '{provider}'.")
+
+    sid = getattr(settings, "TWILIO_ACCOUNT_SID", "")
+    token = getattr(settings, "TWILIO_AUTH_TOKEN", "")
+    from_number = getattr(settings, "TWILIO_WHATSAPP_FROM", "")
+    if not sid or not token or not from_number:
+        raise ValueError("Twilio WhatsApp credentials are not fully configured.")
+
+    normalized_to = phone_number if phone_number.startswith("whatsapp:") else f"whatsapp:{phone_number}"
+    normalized_from = from_number if from_number.startswith("whatsapp:") else f"whatsapp:{from_number}"
+    body = parse.urlencode(
+        {
+            "To": normalized_to,
+            "From": normalized_from,
+            "Body": content,
+        }
+    ).encode("utf-8")
+    req = urllib_request.Request(
+        url=f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages.json",
+        data=body,
+    )
+    credentials = base64.b64encode(f"{sid}:{token}".encode("utf-8")).decode("ascii")
+    req.add_header("Authorization", f"Basic {credentials}")
+    req.add_header("Content-Type", "application/x-www-form-urlencoded")
+    with urllib_request.urlopen(req, timeout=15):
+        return
+
+
 def dispatch_notification(
     *,
     recipient,
@@ -271,8 +308,10 @@ def dispatch_notification(
                     subject=notification.subject,
                     content=notification.content,
                 )
-            elif channel in {Notification.Channel.SMS, Notification.Channel.WHATSAPP}:
+            elif channel == Notification.Channel.SMS:
                 deliver_sms_notification(recipient=recipient, content=notification.content)
+            elif channel == Notification.Channel.WHATSAPP:
+                deliver_whatsapp_notification(recipient=recipient, content=notification.content)
             notification.sent_at = timezone.now()
             notification.failed_at = None
             notification.error_message = ""
@@ -292,6 +331,8 @@ def broadcast_announcement(announcement: Announcement):
         channels.append(Notification.Channel.EMAIL)
     if announcement.send_sms:
         channels.append(Notification.Channel.SMS)
+    if getattr(announcement, "send_whatsapp", False):
+        channels.append(Notification.Channel.WHATSAPP)
 
     notifications = []
     for recipient in get_notification_recipients_for_tenant(announcement.tenant):

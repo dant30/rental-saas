@@ -244,6 +244,13 @@ class PaymentGatewayTransaction(TenantAwareModel):
     result_description = models.TextField(blank=True)
     request_payload = models.JSONField(default=dict, blank=True)
     callback_payload = models.JSONField(default=dict, blank=True)
+    callback_received_at = models.DateTimeField(null=True, blank=True)
+    webhook_event_id = models.CharField(max_length=255, blank=True)
+    retry_count = models.PositiveIntegerField(default=0)
+    max_retry_count = models.PositiveIntegerField(default=5)
+    last_retry_at = models.DateTimeField(null=True, blank=True)
+    next_retry_at = models.DateTimeField(null=True, blank=True)
+    last_webhook_error = models.TextField(blank=True)
     processed_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
@@ -253,6 +260,8 @@ class PaymentGatewayTransaction(TenantAwareModel):
             models.Index(fields=["tenant", "gateway", "status", "created_at"]),
             models.Index(fields=["checkout_request_id"]),
             models.Index(fields=["external_reference"]),
+            models.Index(fields=["status", "next_retry_at"]),
+            models.Index(fields=["webhook_event_id"]),
         ]
 
     def __str__(self):
@@ -325,6 +334,18 @@ class Arrear(TenantAwareModel):
 
 
 class Expense(TenantAwareModel):
+    class OCRStatus(models.TextChoices):
+        NOT_REQUESTED = "not_requested", "Not Requested"
+        PENDING = "pending", "Pending"
+        PROCESSING = "processing", "Processing"
+        SUCCEEDED = "succeeded", "Succeeded"
+        FAILED = "failed", "Failed"
+
+    class OCRProvider(models.TextChoices):
+        MOCK = "mock", "Mock"
+        TEXT = "text", "Text Extractor"
+        OCR_SPACE = "ocr_space", "OCR.Space"
+
     class ExpenseCategory(models.TextChoices):
         MAINTENANCE = "maintenance", "Maintenance"
         UTILITIES = "utilities", "Utilities"
@@ -369,6 +390,23 @@ class Expense(TenantAwareModel):
     expense_date = models.DateField(default=timezone.localdate)
     vendor_name = models.CharField(max_length=255, blank=True)
     receipt = models.FileField(upload_to="expenses/receipts/", null=True, blank=True)
+    ocr_status = models.CharField(
+        max_length=20,
+        choices=OCRStatus.choices,
+        default=OCRStatus.NOT_REQUESTED,
+    )
+    ocr_provider = models.CharField(
+        max_length=20,
+        choices=OCRProvider.choices,
+        default=OCRProvider.MOCK,
+    )
+    ocr_scanned_at = models.DateTimeField(null=True, blank=True)
+    ocr_extracted_text = models.TextField(blank=True)
+    ocr_failure_reason = models.TextField(blank=True)
+    ocr_raw_payload = models.JSONField(default=dict, blank=True)
+    detected_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    detected_vendor_name = models.CharField(max_length=255, blank=True)
+    detected_expense_date = models.DateField(null=True, blank=True)
     status = models.CharField(
         max_length=20,
         choices=ExpenseStatus.choices,

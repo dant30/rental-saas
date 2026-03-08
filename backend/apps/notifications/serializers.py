@@ -78,6 +78,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "message",
             "send_email",
             "send_sms",
+            "send_whatsapp",
             "publish_at",
             "expires_at",
             "is_active",

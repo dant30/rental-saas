@@ -11,7 +11,12 @@ except ImportError:  # pragma: no cover
         return func
 
 from apps.notifications.services import dispatch_notification
-from apps.payments.services import generate_monthly_invoices, sync_invoice_statuses
+from apps.payments.services import (
+    generate_monthly_invoices,
+    retry_due_gateway_transactions,
+    scan_expense_receipt,
+    sync_invoice_statuses,
+)
 
 
 @shared_task
@@ -34,3 +39,18 @@ def generate_monthly_invoices_task():
 @shared_task
 def sync_overdue_invoices_task():
     return sync_invoice_statuses(today=timezone.localdate())
+
+
+@shared_task
+def scan_expense_receipt_task(*, expense_id, provider=None):
+    from apps.payments.models import Expense
+
+    expense = Expense.objects.get(pk=expense_id)
+    scan_expense_receipt(expense=expense, provider=provider)
+    return expense.pk
+
+
+@shared_task
+def retry_gateway_transactions_task():
+    retried = retry_due_gateway_transactions(now=timezone.now())
+    return [transaction.pk for transaction in retried]

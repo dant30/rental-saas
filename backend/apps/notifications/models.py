@@ -130,6 +130,7 @@ class Announcement(TenantAwareModel):
     message = models.TextField()
     send_email = models.BooleanField(default=False)
     send_sms = models.BooleanField(default=False)
+    send_whatsapp = models.BooleanField(default=False)
     publish_at = models.DateTimeField(null=True, blank=True)
     expires_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)

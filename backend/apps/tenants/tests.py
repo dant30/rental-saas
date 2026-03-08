@@ -1,13 +1,16 @@
-"""Tests for tenant onboarding."""
+"""Tests for tenant onboarding and tenant integrity commands."""
 
 from unittest.mock import patch
 
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.urls import reverse
+from io import StringIO
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from apps.tenants.models import Domain, Tenant
 from apps.accounts.models import User
+from apps.tenants.models import Domain, Tenant
 
 
 class TenantSignupTests(APITestCase):
@@ -110,3 +113,15 @@ class TenantSignupTests(APITestCase):
         response = self.client.post(self.url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("admin_username", response.data)
+
+    def test_tenant_isolation_audit_passes_when_no_issues_exist(self):
+        stdout = StringIO()
+        call_command("audit_tenant_isolation", stdout=stdout)
+        self.assertIn("passed with no issues", stdout.getvalue().lower())
+
+    def test_tenant_isolation_audit_detects_missing_schema(self):
+        tenant = Tenant.objects.create(schema_name="auditdrift", name="Audit Drift")
+        Domain.objects.create(domain="auditdrift.localhost", tenant=tenant, is_primary=True)
+
+        with self.assertRaises(CommandError):
+            call_command("audit_tenant_isolation", "--fail-on-issues")

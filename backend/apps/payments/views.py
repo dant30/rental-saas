@@ -3,6 +3,7 @@
 from rest_framework import permissions
 from django.utils.dateparse import parse_date
 from rest_framework import serializers, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -13,6 +14,7 @@ from .serializers import (
     ArrearSerializer,
     BankPaymentSerializer,
     ExpenseSerializer,
+    ExpenseOCRScanSerializer,
     InvoiceSerializer,
     MpesaSTKPushSerializer,
     PaymentGatewayTransactionSerializer,
@@ -30,10 +32,12 @@ from .services import (
     initiate_mpesa_stk_push,
     process_mpesa_callback,
     record_bank_payment,
+    retry_gateway_transaction,
     save_arrear_for_user,
     save_expense_for_user,
     save_invoice_for_user,
     save_payment_for_user,
+    scan_expense_receipt,
 )
 
 
@@ -72,6 +76,12 @@ class PaymentGatewayTransactionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return get_gateway_transaction_queryset_for_user(self.request.user)
 
+    @action(detail=True, methods=["post"])
+    def retry(self, request, pk=None):
+        transaction = self.get_object()
+        transaction = retry_gateway_transaction(transaction=transaction)
+        return Response(self.get_serializer(transaction).data, status=status.HTTP_200_OK)
+
 
 class ArrearViewSet(viewsets.ModelViewSet):
     queryset = Arrear.objects.all()
@@ -95,6 +105,17 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         save_expense_for_user(serializer, self.request.user)
+
+    @action(detail=True, methods=["post"])
+    def scan_receipt(self, request, pk=None):
+        expense = self.get_object()
+        serializer = ExpenseOCRScanSerializer(data=request.data or {})
+        serializer.is_valid(raise_exception=True)
+        try:
+            expense = scan_expense_receipt(expense=expense, provider=serializer.validated_data.get("provider"))
+        except Exception as exc:
+            raise serializers.ValidationError({"detail": str(exc)}) from exc
+        return Response(self.get_serializer(expense).data, status=status.HTTP_200_OK)
 
 
 class RentRollReportView(APIView):

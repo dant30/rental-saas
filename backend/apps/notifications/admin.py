@@ -26,7 +26,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
 @admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
-    list_display = ("title", "tenant", "created_by", "publish_at", "expires_at", "is_active")
+    list_display = ("title", "tenant", "created_by", "send_email", "send_sms", "send_whatsapp", "is_active")
     list_filter = ("is_active", "tenant")
     search_fields = ("title", "message")
 
