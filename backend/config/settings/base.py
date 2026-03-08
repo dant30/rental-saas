@@ -19,7 +19,10 @@ def _env_bool(name: str, default: bool = False) -> bool:
     return value.lower() in {"1", "true", "yes"}
 
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-local-secret")
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "unsafe-local-secret-key-change-me-please-32chars-min",
+)
 DEBUG = _env_bool("DJANGO_DEBUG", True)
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split()
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     "channels",
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
 
     # Local apps
@@ -116,6 +120,7 @@ SHARED_APPS = [
     "channels",
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "apps.core",
     "apps.tenants",
@@ -165,6 +170,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Notifications
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@rentalsaas.local")
+FRONTEND_PASSWORD_RESET_URL = os.getenv("FRONTEND_PASSWORD_RESET_URL", "")
 SMS_PROVIDER = os.getenv("SMS_PROVIDER", "console")
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")

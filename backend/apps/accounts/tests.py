@@ -4,10 +4,13 @@ import datetime
 from decimal import Decimal
 
 from django.core.management import call_command
+from django.core import mail
+from django.test import override_settings
 
 from django_tenants.test.cases import TenantTestCase
 from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.accounts.models import User
 from apps.caretakers.models import Caretaker, MaintenanceRequest
@@ -218,3 +221,58 @@ class PortalAPITests(TenantTestCase):
             **self._headers(),
         )
         self.assertEqual(task_update.status_code, status.HTTP_200_OK)
+
+    def test_logout_blacklists_refresh_token(self):
+        refresh = RefreshToken.for_user(self.owner_user)
+        self.client.force_authenticate(self.owner_user)
+
+        response = self.client.post(
+            "/api/auth/logout/",
+            {"refresh": str(refresh)},
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
+
+        refresh_response = self.client.post(
+            "/api/auth/token/refresh/",
+            {"refresh": str(refresh)},
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(refresh_response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        FRONTEND_PASSWORD_RESET_URL="https://app.rentalsaas.test/reset-password",
+    )
+    def test_password_reset_request_and_confirm(self):
+        mail.outbox = []
+        request_response = self.client.post(
+            "/api/auth/password-reset/",
+            {"email": self.owner_user.email},
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(request_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+
+        # Reset token is generated in the email body; extract uid/token from the query string.
+        body = mail.outbox[0].body
+        uid = body.split("uid=", 1)[1].split("&", 1)[0]
+        token = body.split("token=", 1)[1].strip()
+
+        confirm_response = self.client.post(
+            "/api/auth/password-reset/confirm/",
+            {
+                "uid": uid,
+                "token": token,
+                "new_password": "UpdatedSecret123",
+            },
+            format="json",
+            **self._headers(),
+        )
+        self.assertEqual(confirm_response.status_code, status.HTTP_200_OK)
+
+        self.owner_user.refresh_from_db()
+        self.assertTrue(self.owner_user.check_password("UpdatedSecret123"))

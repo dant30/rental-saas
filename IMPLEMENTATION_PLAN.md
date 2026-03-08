@@ -54,7 +54,7 @@ Custom User model `✅✅`
 
 Authentication & permissions `❌❌`
 - `✅✅` JWT login/refresh support exists.
-- `❌❌` Logout and password reset flows are not complete.
+- `✅✅` Logout and password reset flows are implemented.
 - `✅✅` Tenant permission classes exist.
 
 Core utilities `❌❌`
