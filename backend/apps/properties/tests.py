@@ -22,17 +22,6 @@ class PropertyAPITests(TenantTestCase):
         # Enable schema auto-creation for tests, so the tenant schema exists.
         tenant.auto_create_schema = True
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # Ensure tenant schema has tables created for tenant apps.
-        call_command(
-            "migrate_schemas",
-            schema_name=cls.get_test_schema_name(),
-            interactive=False,
-            verbosity=0,
-        )
-
     def setUp(self):
         # Use APIClient so we can easily authenticate using DRF helpers.
         self.client = APIClient()
