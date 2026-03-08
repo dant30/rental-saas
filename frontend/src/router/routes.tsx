@@ -11,13 +11,16 @@ import AdminDashboardPage from "../features/admin/pages/AdminDashboard";
 import ForgotPasswordPage from "../features/auth/pages/ForgotPassword";
 import LoginPage from "../features/auth/pages/Login";
 import RegisterPage from "../features/auth/pages/Register";
+import CaretakerCreatePage from "../features/caretakers/pages/CaretakerCreate";
+import CaretakerDetailPage from "../features/caretakers/pages/CaretakerDetail";
 import CaretakerListPage from "../features/caretakers/pages/CaretakerList";
 import DashboardPage from "../features/dashboard/pages/Dashboard";
-import ExpenseFormPage from "../features/expenses/pages/ExpenseForm";
+import ExpenseCreatePage from "../features/expenses/pages/ExpenseForm";
 import ExpenseListPage from "../features/expenses/pages/ExpenseList";
 import NotificationsPage from "../features/notifications/pages/Notifications";
 import ArrearsPage from "../features/payments/pages/Arrears";
 import PaymentListPage from "../features/payments/pages/PaymentList";
+import PropertyCreatePage from "../features/properties/pages/PropertyCreate";
 import PropertyDetailPage from "../features/properties/pages/PropertyDetail";
 import PropertyListPage from "../features/properties/pages/PropertyList";
 import TenantDetailPage from "../features/tenants/pages/TenantDetail";
@@ -29,11 +32,24 @@ import PrivateRoute from "./PrivateRoute";
 
 const navItems = [
   { to: routePaths.dashboard, label: "Overview" },
-  { to: routePaths.properties, label: "Properties" },
-  { to: routePaths.tenants, label: "Tenants" },
-  { to: routePaths.payments, label: "Payments" },
-  { to: routePaths.arrears, label: "Arrears" },
-  { to: routePaths.expenses, label: "Expenses" },
+  {
+    label: "Portfolio",
+    children: [
+      { to: routePaths.properties, label: "Properties" },
+      { to: routePaths.propertiesNew, label: "Add property" },
+      { to: routePaths.tenants, label: "Tenants" },
+      { to: routePaths.tenantsNew, label: "Add tenant" },
+    ],
+  },
+  {
+    label: "Finance",
+    children: [
+      { to: routePaths.payments, label: "Payments" },
+      { to: routePaths.arrears, label: "Arrears" },
+      { to: routePaths.expenses, label: "Expenses" },
+      { to: routePaths.expensesNew, label: "Add expense" },
+    ],
+  },
   { to: routePaths.notifications, label: "Notifications" },
   { to: routePaths.maintenance, label: "Maintenance" },
   { to: routePaths.admin, label: "Admin" },
@@ -118,7 +134,7 @@ const TenantPortalPage = () => {
       <section className="hero-grid">
         <article className="theme-surface hero-card">
           <h3>Quick access</h3>
-          <div className="stack-list" style={{ marginTop: "1rem" }}>
+          <div className="stack-list mt-4">
             {config.links.map((item) => (
               <Link className="nav-link" key={item.to} to={item.to}>
                 {item.label}
@@ -132,9 +148,9 @@ const TenantPortalPage = () => {
           {status === "loading" ? (
             <Loading label="Loading portal summary..." />
           ) : summaryRows.length ? (
-            <div className="stack-list" style={{ marginTop: "1rem" }}>
+            <div className="stack-list mt-4">
               {summaryRows.map(([key, value]) => (
-                <div key={key} style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
+                <div key={key} className="flex justify-between gap-4">
                   <span className="theme-caption">{key.replace(/_/g, " ")}</span>
                   <strong>{String(value)}</strong>
                 </div>
@@ -149,13 +165,13 @@ const TenantPortalPage = () => {
         </article>
       </section>
 
-      <section className="report-grid" style={{ marginTop: "2rem" }}>
+      <section className="report-grid mt-8">
         <article className="surface-panel activity-card">
           <h3>Recommended focus</h3>
           <p className="theme-subtitle">
             Use this portal as the role-specific starting point for daily activity.
           </p>
-          <div className="stack-list" style={{ marginTop: "1rem" }}>
+          <div className="stack-list mt-4">
             {config.links.map((item) => (
               <Link className="nav-link" key={item.to} to={item.to}>
                 {item.label}
@@ -195,15 +211,19 @@ const AppRoutes = () => {
       <Route element={<PrivateRoute />}>
         <Route element={<AppShell><DashboardPage /></AppShell>} path={routePaths.dashboard} />
         <Route element={<AppShell><PropertyListPage /></AppShell>} path={routePaths.properties} />
+        <Route element={<AppShell><PropertyCreatePage /></AppShell>} path={routePaths.propertiesNew} />
         <Route element={<AppShell><PropertyDetailPage /></AppShell>} path="/app/properties/:id" />
         <Route element={<AppShell><TenantListPage /></AppShell>} path={routePaths.tenants} />
+        <Route element={<AppShell><TenantDetailPage /></AppShell>} path={routePaths.tenantsNew} />
         <Route element={<AppShell><TenantDetailPage /></AppShell>} path="/app/tenants/:id" />
         <Route element={<AppShell><PaymentListPage /></AppShell>} path={routePaths.payments} />
         <Route element={<AppShell><ArrearsPage /></AppShell>} path={routePaths.arrears} />
         <Route element={<AppShell><ExpenseListPage /></AppShell>} path={routePaths.expenses} />
-        <Route element={<AppShell><ExpenseFormPage /></AppShell>} path="/app/expenses/new" />
+        <Route element={<AppShell><ExpenseCreatePage /></AppShell>} path={routePaths.expensesNew} />
         <Route element={<AppShell><NotificationsPage /></AppShell>} path={routePaths.notifications} />
         <Route element={<AppShell><CaretakerListPage /></AppShell>} path={routePaths.maintenance} />
+        <Route element={<AppShell><CaretakerCreatePage /></AppShell>} path={routePaths.maintenanceNew} />
+        <Route element={<AppShell><CaretakerDetailPage /></AppShell>} path="/app/maintenance/:id" />
         <Route
           element={
             <FeatureGate feature="tenant_portal">

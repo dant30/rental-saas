@@ -24,8 +24,9 @@ import { notificationApi } from "../../features/notifications/services/notificat
 import type { NotificationRecord } from "../../features/notifications/types";
 
 interface NavItem {
-  to: string;
+  to?: string;
   label: string;
+  children?: Array<{ to: string; label: string }>;
 }
 
 interface HeaderProps {
@@ -132,9 +133,23 @@ const ShellHeader = ({
       return;
     }
 
-    const match = navItems.find((item) => item.label.toLowerCase().includes(query));
-    if (match) {
-      navigate(match.to);
+    let matchTo: string | undefined;
+    for (const item of navItems) {
+      if (item.label.toLowerCase().includes(query) && item.to) {
+        matchTo = item.to;
+        break;
+      }
+      if (item.children) {
+        const child = item.children.find((childItem) => childItem.label.toLowerCase().includes(query));
+        if (child) {
+          matchTo = child.to;
+          break;
+        }
+      }
+    }
+
+    if (matchTo) {
+      navigate(matchTo);
       setSearchQuery("");
       setIsMobileSearchOpen(false);
     }

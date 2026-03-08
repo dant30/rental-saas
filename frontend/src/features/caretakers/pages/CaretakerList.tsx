@@ -1,9 +1,12 @@
 import { useDeferredValue, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
+import Button from "../../../components/shared/Button";
 import Input from "../../../components/shared/Input";
 import Table, { type TableColumn } from "../../../components/shared/Table";
+import { routePaths } from "../../../core/constants/routePaths";
 import { CaretakerRecord } from "../types";
 import { useCaretakers } from "../hooks/useCaretakers";
 
@@ -34,9 +37,19 @@ const CaretakerListPage = () => {
     { key: "status", header: "Status", render: (item) => item.status || "active" },
   ];
 
+  const navigate = useNavigate();
+
   return (
     <>
       <Header subtitle="Caretaker roster from /api/caretakers/." title="Caretakers" />
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Operations roster</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Add or manage caretakers responsible for maintenance.</p>
+        </div>
+        <Button onClick={() => navigate(routePaths.maintenanceNew)}>Add caretaker</Button>
+      </div>
 
       <section className="stats-grid">
         <article className="theme-kpi">

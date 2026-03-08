@@ -10,8 +10,14 @@ import Footer from "./Footer";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 
+interface NavItem {
+  to?: string;
+  label: string;
+  children?: Array<{ to: string; label: string }>;
+}
+
 interface MainLayoutProps {
-  navItems: Array<{ to: string; label: string }>;
+  navItems: NavItem[];
 }
 
 const DESKTOP_QUERY = "(min-width: 768px)";

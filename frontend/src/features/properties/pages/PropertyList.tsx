@@ -1,9 +1,12 @@
 import { useDeferredValue, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
+import Button from "../../../components/shared/Button";
 import Input from "../../../components/shared/Input";
 import Table, { type TableColumn } from "../../../components/shared/Table";
+import { routePaths } from "../../../core/constants/routePaths";
 import { PropertyRecord } from "../types";
 import { useProperties } from "../hooks/useProperties";
 
@@ -46,9 +49,19 @@ const PropertyListPage = () => {
     },
   ];
 
+  const navigate = useNavigate();
+
   return (
     <>
       <Header subtitle="Portfolio inventory from /api/properties/." title="Properties" />
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Portfolio snapshot</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Add a property to start tracking units and leases.</p>
+        </div>
+        <Button onClick={() => navigate(routePaths.propertiesNew)}>Add property</Button>
+      </div>
 
       <section className="stats-grid">
         <article className="theme-kpi">

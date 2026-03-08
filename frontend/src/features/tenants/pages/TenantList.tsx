@@ -1,9 +1,12 @@
 import { useDeferredValue, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
+import Button from "../../../components/shared/Button";
 import Input from "../../../components/shared/Input";
 import Table, { type TableColumn } from "../../../components/shared/Table";
+import { routePaths } from "../../../core/constants/routePaths";
 import { TenantResident } from "../types";
 import { useTenants } from "../hooks/useTenants";
 
@@ -46,9 +49,19 @@ const TenantListPage = () => {
     },
   ];
 
+  const navigate = useNavigate();
+
   return (
     <>
       <Header subtitle="Resident list from /api/tenants/residents/." title="Tenants" />
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Resident overview</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Add new residents to manage leases and rent.</p>
+        </div>
+        <Button onClick={() => navigate(routePaths.tenantsNew)}>Add resident</Button>
+      </div>
 
       <section className="stats-grid">
         <article className="theme-kpi">
