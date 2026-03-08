@@ -129,11 +129,11 @@ rental-saas/
 │   │   │   └── .gitkeep
 │   │   ├── locales/
 │   │   │   ├── en/
-│   │   │   │   └── translation.json
+│   │   │   │   └── translation.tson
 │   │   │   └── es/
-│   │   │       └── translation.json
-│   │   ├── service-worker.js
-│   │   ├── manifest.json
+│   │   │       └── translation.tson
+│   │   ├── service-worker.ts
+│   │   ├── manifest.tson
 │   │   └── index.html
 │   ├── src/
 │   │   ├── assets/
@@ -332,17 +332,17 @@ rental-saas/
 │   │   └── vite-env.d.ts
 │   ├── .env.example
 │   ├── .env
-│   ├── .eslintrc.js
+│   ├── .eslintrc.ts
 │   ├── .prettierrc
-│   ├── babel.config.js
-│   ├── eslint.config.js
-│   ├── jest.config.js
-│   ├── jest.setup.js
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   ├── tsconfig.json
+│   ├── babel.config.ts
+│   ├── eslint.config.ts
+│   ├── jest.config.ts
+│   ├── jest.setup.ts
+│   ├── postcss.config.ts
+│   ├── tailwind.config.ts
+│   ├── tsconfig.tson
 │   ├── vite.config.ts
-│   └── package.json
+│   └── package.tson
 ├── docker-compose.yml
 ├── render.yaml
 ├── .gitignore

@@ -227,7 +227,7 @@ def deliver_sms_notification(*, recipient, content: str):
         }
     ).encode("utf-8")
     req = urllib_request.Request(
-        url=f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages.json",
+        url=f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages.tson",
         data=body,
     )
     credentials = base64.b64encode(f"{sid}:{token}".encode("utf-8")).decode("ascii")
@@ -264,7 +264,7 @@ def deliver_whatsapp_notification(*, recipient, content: str):
         }
     ).encode("utf-8")
     req = urllib_request.Request(
-        url=f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages.json",
+        url=f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages.tson",
         data=body,
     )
     credentials = base64.b64encode(f"{sid}:{token}".encode("utf-8")).decode("ascii")

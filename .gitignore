@@ -125,8 +125,8 @@ pythonenv*
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
+.dmypy.tson
+dmypy.tson
 .pyre/
 .pytype/
 
@@ -154,7 +154,7 @@ Thumbs.db
 # Frontend (React / Node)
 frontend/node_modules/
 frontend/.pnp
-frontend/.pnp.js
+frontend/.pnp.ts
 frontend/coverage/
 frontend/.next/
 frontend/out/
@@ -179,7 +179,7 @@ frontend/lerna-debug.log*
 frontend/.pnpm-debug.log*
 
 # Optional: keep lockfiles if you want to commit them
-# frontend/package-lock.json
+# frontend/package-lock.tson
 # frontend/yarn.lock
 # frontend/pnpm-lock.yaml
 
@@ -197,7 +197,7 @@ docker-compose.override.yml
 .terraform/
 crash.log
 override.tf
-override.tf.json
+override.tf.tson
 .terraform.lock.hcl
 
 # Vagrant

@@ -15,8 +15,15 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "jest", "@testing-library/jest-dom"]
+    "types": ["vite/client", "jest", "@testing-library/jest-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@components/ui/*": ["src/components/shared/*"],
+      "@components/*": ["src/components/*"],
+      "@contexts/*": ["src/core/contexts/*"],
+      "@utils/*": ["src/core/utils/*"]
+    }
   },
-  "include": ["src", "vite.config.ts", "jest.config.js", "babel.config.js"],
+  "include": ["src", "vite.config.ts", "jest.config.ts", "babel.config.ts"],
   "references": []
 }

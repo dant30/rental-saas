@@ -5,7 +5,7 @@ export default {
   transform: {
     "^.+\\.(t|j)sx?$": "babel-jest",
   },
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },

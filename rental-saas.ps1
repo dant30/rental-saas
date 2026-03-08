@@ -109,11 +109,11 @@ Set-Location "locales"
 @("en", "es") | ForEach-Object {
     New-Item -ItemType Directory -Path $_ -Force | Out-Null
     Set-Location $_
-    New-Item -ItemType File -Path "translation.json" -Force | Out-Null
+    New-Item -ItemType File -Path "translation.tson" -Force | Out-Null
     Set-Location ".."
 }
 Set-Location ".."
-@("service-worker.js", "manifest.json", "index.html") | ForEach-Object {
+@("service-worker.ts", "manifest.tson", "index.html") | ForEach-Object {
     New-Item -ItemType File -Path $_ -Force | Out-Null
 }
 Set-Location ".."
@@ -272,9 +272,9 @@ Set-Location ".." # back to frontend
 
 # frontend config files
 @(
-    ".env.example", ".env", ".eslintrc.js", ".prettierrc", "babel.config.js",
-    "eslint.config.js", "jest.config.js", "jest.setup.js", "postcss.config.js",
-    "tailwind.config.js", "tsconfig.json", "vite.config.ts", "package.json"
+    ".env.example", ".env", ".eslintrc.ts", ".prettierrc", "babel.config.ts",
+    "eslint.config.ts", "jest.config.ts", "jest.setup.ts", "postcss.config.ts",
+    "tailwind.config.ts", "tsconfig.tson", "vite.config.ts", "package.tson"
 ) | ForEach-Object {
     New-Item -ItemType File -Path $_ -Force | Out-Null
 }
