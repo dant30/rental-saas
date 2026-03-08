@@ -1,6 +1,7 @@
 export const endpoints = {
   auth: {
     login: "/auth/login/",
+    tokenRefresh: "/auth/token/refresh/",
     register: "/auth/register/",
     logout: "/auth/logout/",
     me: "/auth/me/",

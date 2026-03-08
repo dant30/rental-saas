@@ -60,6 +60,12 @@ export const saveStoredSession = (session: AuthSession) => {
   }
 };
 
+export const clearStoredSession = () => {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+};
+
 const PrivateRoute = () => {
   const session = getStoredSession();
   const location = useLocation();

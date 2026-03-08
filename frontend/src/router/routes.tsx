@@ -3,6 +3,7 @@ import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom"
 
 import MainLayout from "../components/layout/MainLayout";
 import Button from "../components/shared/Button";
+import { authTokenStorage } from "../core/api/axios";
 import { routePaths } from "../core/constants/routePaths";
 import { useToast } from "../core/contexts/ToastContext";
 import AdminDashboardPage from "../features/admin/pages/AdminDashboard";
@@ -22,7 +23,7 @@ import TenantDetailPage from "../features/tenants/pages/TenantDetail";
 import TenantListPage from "../features/tenants/pages/TenantList";
 import AdminRoute from "./AdminRoute";
 import FeatureGate from "./FeatureGate";
-import PrivateRoute, { getStoredSession, saveStoredSession } from "./PrivateRoute";
+import PrivateRoute, { clearStoredSession, getStoredSession, saveStoredSession } from "./PrivateRoute";
 
 const navItems = [
   { to: routePaths.dashboard, label: "Overview" },
@@ -55,6 +56,8 @@ const AppShell = ({ children }: { children: ReactNode }) => {
           <span className="status-badge status-badge--success">{session.role}</span>
           <Button
             onClick={() => {
+              authTokenStorage.clear();
+              clearStoredSession();
               saveStoredSession({
                 isAuthenticated: false,
                 role: "tenant",

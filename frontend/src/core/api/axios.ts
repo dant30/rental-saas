@@ -6,9 +6,10 @@ export type HttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 export interface ApiRequestOptions {
   method?: HttpMethod;
-  body?: BodyInit | Record<string, unknown> | null;
+  body?: BodyInit | object | null;
   token?: string | null;
   headers?: HeadersInit;
+  skipRefresh?: boolean;
 }
 
 export interface AuthTokens {
@@ -36,6 +37,35 @@ const buildHeaders = (options: ApiRequestOptions) => {
   return headers;
 };
 
+const tryRefreshToken = async () => {
+  const refresh = authTokenStorage.get()?.refresh;
+  if (!refresh) {
+    return null;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refresh }),
+  });
+
+  if (!response.ok) {
+    authTokenStorage.clear();
+    return null;
+  }
+
+  const payload = (await response.json()) as { access: string };
+  const current = authTokenStorage.get();
+  if (!current) {
+    return null;
+  }
+  const nextTokens = { ...current, access: payload.access };
+  authTokenStorage.set(nextTokens);
+  return nextTokens;
+};
+
 export const apiClient = async <T>(path: string, options: ApiRequestOptions = {}): Promise<T> => {
   const headers = buildHeaders(options);
   const body =
@@ -48,6 +78,17 @@ export const apiClient = async <T>(path: string, options: ApiRequestOptions = {}
     headers,
     body,
   });
+
+  if (response.status === 401 && !options.skipRefresh) {
+    const refreshed = await tryRefreshToken();
+    if (refreshed?.access) {
+      return apiClient<T>(path, {
+        ...options,
+        token: refreshed.access,
+        skipRefresh: true,
+      });
+    }
+  }
 
   if (!response.ok) {
     let detail = `${response.status} ${response.statusText}`;

@@ -17,7 +17,7 @@ const LoginPage = () => {
       <LoginForm
         onSubmit={async (payload) => {
           await auth.login(payload);
-          pushToast("Authenticated", "success");
+          pushToast("Authenticated via JWT", "success");
           navigate(routePaths.dashboard);
         }}
       />
