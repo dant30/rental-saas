@@ -1,0 +1,349 @@
+rental-saas/
+├── backend/
+│   ├── manage.py
+│   ├── runtime.txt
+│   ├── .env
+│   ├── .env.example
+│   ├── requirements/
+│   │   ├── base.txt
+│   │   ├── dev.txt
+│   │   └── prod.txt
+│   ├── celery/
+│   │   └── __init__.py
+│   ├── config/
+│   │   ├── __init__.py
+│   │   ├── settings/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── development.py
+│   │   │   └── production.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── apps/
+│   │   ├── __init__.py
+│   │   ├── core/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── permissions.py
+│   │   │   ├── middleware.py
+│   │   │   ├── validators.py
+│   │   │   ├── services.py
+│   │   │   └── utils.py
+│   │   ├── tenants/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── serializers.py
+│   │   │   ├── permissions.py
+│   │   │   ├── services.py
+│   │   │   └── utils.py
+│   │   ├── accounts/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── serializers.py
+│   │   │   ├── permissions.py
+│   │   │   ├── services.py
+│   │   │   ├── signals.py
+│   │   │   ├── tasks.py
+│   │   │   ├── validators.py
+│   │   │   └── backends.py
+│   │   ├── properties/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── serializers.py
+│   │   │   ├── permissions.py
+│   │   │   ├── services.py
+│   │   │   ├── signals.py
+│   │   │   ├── tasks.py
+│   │   │   └── validators.py
+│   │   ├── tenants_app/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── serializers.py
+│   │   │   ├── permissions.py
+│   │   │   ├── services.py
+│   │   │   ├── signals.py
+│   │   │   ├── tasks.py
+│   │   │   └── validators.py
+│   │   ├── payments/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── serializers.py
+│   │   │   ├── permissions.py
+│   │   │   ├── services.py
+│   │   │   ├── signals.py
+│   │   │   ├── tasks.py
+│   │   │   └── validators.py
+│   │   ├── caretakers/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── serializers.py
+│   │   │   ├── permissions.py
+│   │   │   ├── services.py
+│   │   │   ├── signals.py
+│   │   │   ├── tasks.py
+│   │   │   └── validators.py
+│   │   ├── notifications/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── serializers.py
+│   │   │   ├── permissions.py
+│   │   │   ├── services.py
+│   │   │   ├── signals.py
+│   │   │   ├── tasks.py
+│   │   │   └── utils.py
+│   │   └── common/
+│   │       ├── __init__.py
+│   │       └── placeholder.txt
+│   ├── static/
+│   │   └── .gitkeep
+│   ├── media/
+│   │   └── .gitkeep
+│   └── templates/
+│       └── .gitkeep
+├── frontend/
+│   ├── public/
+│   │   ├── icons/
+│   │   │   └── .gitkeep
+│   │   ├── locales/
+│   │   │   ├── en/
+│   │   │   │   └── translation.json
+│   │   │   └── es/
+│   │   │       └── translation.json
+│   │   ├── service-worker.js
+│   │   ├── manifest.json
+│   │   └── index.html
+│   ├── src/
+│   │   ├── assets/
+│   │   │   └── .gitkeep
+│   │   ├── components/
+│   │   │   ├── shared/
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Input.tsx
+│   │   │   │   ├── Card.tsx
+│   │   │   │   ├── Modal.tsx
+│   │   │   │   └── index.ts
+│   │   │   └── layout/
+│   │   │       ├── Header.tsx
+│   │   │       ├── Sidebar.tsx
+│   │   │       ├── MainLayout.tsx
+│   │   │       └── index.ts
+│   │   ├── features/
+│   │   │   ├── auth/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── LoginForm.tsx
+│   │   │   │   │   └── RegisterForm.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── authApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── authSlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── useAuth.ts
+│   │   │   │   └── pages/
+│   │   │   │       ├── Login.tsx
+│   │   │   │       ├── Register.tsx
+│   │   │   │       └── ForgotPassword.tsx
+│   │   │   ├── dashboard/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── StatsWidget.tsx
+│   │   │   │   │   └── RecentActivity.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── dashboardApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── dashboardSlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── useDashboard.ts
+│   │   │   │   └── pages/
+│   │   │   │       └── Dashboard.tsx
+│   │   │   ├── properties/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── PropertyCard.tsx
+│   │   │   │   │   ├── PropertyForm.tsx
+│   │   │   │   │   └── PropertyList.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── propertyApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── propertySlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── useProperties.ts
+│   │   │   │   └── pages/
+│   │   │   │       ├── PropertyList.tsx
+│   │   │   │       └── PropertyDetail.tsx
+│   │   │   ├── tenants/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── TenantCard.tsx
+│   │   │   │   │   ├── TenantForm.tsx
+│   │   │   │   │   └── TenantList.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── tenantApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── tenantSlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── useTenants.ts
+│   │   │   │   └── pages/
+│   │   │   │       ├── TenantList.tsx
+│   │   │   │       └── TenantDetail.tsx
+│   │   │   ├── payments/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── PaymentRow.tsx
+│   │   │   │   │   ├── PaymentForm.tsx
+│   │   │   │   │   └── ArrearsList.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── paymentApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── paymentSlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── usePayments.ts
+│   │   │   │   └── pages/
+│   │   │   │       ├── PaymentList.tsx
+│   │   │   │       └── Arrears.tsx
+│   │   │   ├── expenses/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── ExpenseRow.tsx
+│   │   │   │   │   └── ExpenseForm.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── expenseApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── expenseSlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── useExpenses.ts
+│   │   │   │   └── pages/
+│   │   │   │       ├── ExpenseList.tsx
+│   │   │   │       └── ExpenseForm.tsx
+│   │   │   ├── notifications/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── NotificationBell.tsx
+│   │   │   │   │   └── NotificationList.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── notificationApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── notificationSlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── useNotifications.ts
+│   │   │   │   └── pages/
+│   │   │   │       └── Notifications.tsx
+│   │   │   ├── caretakers/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── CaretakerCard.tsx
+│   │   │   │   │   └── CaretakerForm.tsx
+│   │   │   │   ├── types/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   └── caretakerApi.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── caretakerSlice.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   └── useCaretakers.ts
+│   │   │   │   └── pages/
+│   │   │   │       ├── CaretakerList.tsx
+│   │   │   │       └── CaretakerDetail.tsx
+│   │   │   └── admin/
+│   │   │       ├── components/
+│   │   │       │   ├── TenantManager.tsx
+│   │   │       │   └── UserList.tsx
+│   │   │       ├── types/
+│   │   │       │   └── index.ts
+│   │   │       ├── services/
+│   │   │       │   └── adminApi.ts
+│   │   │       ├── store/
+│   │   │       │   └── adminSlice.ts
+│   │   │       ├── hooks/
+│   │   │       │   └── useAdmin.ts
+│   │   │       └── pages/
+│   │   │           └── AdminDashboard.tsx
+│   │   ├── core/
+│   │   │   ├── api/
+│   │   │   │   ├── axios.ts
+│   │   │   │   └── endpoints.ts
+│   │   │   ├── constants/
+│   │   │   │   ├── appConstants.ts
+│   │   │   │   └── routePaths.ts
+│   │   │   ├── i18n/
+│   │   │   │   ├── i18n.ts
+│   │   │   │   └── locales.ts
+│   │   │   ├── storage/
+│   │   │   │   ├── localStorage.ts
+│   │   │   │   └── sessionStorage.ts
+│   │   │   ├── contexts/
+│   │   │   │   ├── ThemeContext.tsx
+│   │   │   │   ├── ToastContext.tsx
+│   │   │   │   └── TenantContext.tsx
+│   │   │   ├── hooks/
+│   │   │   │   ├── useMediaQuery.ts
+│   │   │   │   ├── useDebounce.ts
+│   │   │   │   └── useLocalStorage.ts
+│   │   │   ├── store/
+│   │   │   │   ├── store.ts
+│   │   │   │   └── rootReducer.ts
+│   │   │   └── utils/
+│   │   │       ├── logger.ts
+│   │   │       ├── errorHandler.ts
+│   │   │       ├── formatters.ts
+│   │   │       └── validators.ts
+│   │   ├── styles/
+│   │   │   ├── variables.css
+│   │   │   ├── animations.css
+│   │   │   ├── global.css
+│   │   │   ├── theme.css
+│   │   │   └── components.css
+│   │   ├── router/
+│   │   │   ├── AdminRoute.tsx
+│   │   │   ├── PrivateRoute.tsx
+│   │   │   ├── FeatureGate.tsx
+│   │   │   └── routes.tsx
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── vite-env.d.ts
+│   ├── .env.example
+│   ├── .env
+│   ├── .eslintrc.js
+│   ├── .prettierrc
+│   ├── babel.config.js
+│   ├── eslint.config.js
+│   ├── jest.config.js
+│   ├── jest.setup.js
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   └── package.json
+├── docker-compose.yml
+├── render.yaml
+├── .gitignore
+└── README.md

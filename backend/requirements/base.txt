@@ -1,0 +1,15 @@
+Django>=4.2,<5
+
+djangorestframework
+
+djangorestframework-simplejwt
+
+django-tenants
+
+django-cors-headers
+
+python-dotenv
+
+dj-database-url
+
+psycopg2-binary
