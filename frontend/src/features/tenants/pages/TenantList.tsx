@@ -1,5 +1,6 @@
 import { useDeferredValue, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Pencil } from "lucide-react";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
@@ -50,13 +51,16 @@ const TenantListPage = () => {
     {
       key: "actions",
       header: "",
+      cellClassName: "px-2 py-2 text-right",
       render: (tenant) => (
         <Link
-          className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-primary-600 hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-slate-700"
           onClick={(event) => event.stopPropagation()}
           to={`/app/tenants/${tenant.id}`}
+          aria-label="Edit resident"
+          title="Edit resident"
         >
-          Edit
+          <Pencil className="h-4 w-4" />
         </Link>
       ),
     },
@@ -91,10 +95,10 @@ const TenantListPage = () => {
         </article>
       </section>
 
-      <section className="theme-surface activity-card" style={{ marginTop: "2rem" }}>
+      <section className="theme-surface activity-card mt-8">
         <h3 className="theme-title">Resident register</h3>
         <p className="theme-subtitle">Search by resident identity, email, phone number, or status.</p>
-        <div style={{ marginTop: "1rem" }}>
+        <div className="mt-4">
           <Input
             label="Search residents"
             onChange={(event) => setQuery(event.target.value)}
@@ -102,7 +106,7 @@ const TenantListPage = () => {
             value={query}
           />
         </div>
-        <div style={{ marginTop: "1rem" }}>
+        <div className="mt-4">
           {status === "loading" ? (
             <p className="theme-subtitle">Loading residents...</p>
           ) : filteredItems.length ? (

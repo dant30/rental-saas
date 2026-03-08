@@ -1,5 +1,6 @@
 import { useDeferredValue, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Pencil } from "lucide-react";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
@@ -40,13 +41,16 @@ const CaretakerListPage = () => {
     {
       key: "actions",
       header: "",
+      cellClassName: "px-2 py-2 text-right",
       render: (item) => (
         <Link
-          className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-primary-600 hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-slate-700"
           onClick={(event) => event.stopPropagation()}
           to={`/app/maintenance/${item.id}`}
+          aria-label="Edit caretaker"
+          title="Edit caretaker"
         >
-          Edit
+          <Pencil className="h-4 w-4" />
         </Link>
       ),
     },
@@ -79,10 +83,10 @@ const CaretakerListPage = () => {
         </article>
       </section>
 
-      <section className="theme-surface activity-card" style={{ marginTop: "2rem" }}>
+      <section className="theme-surface activity-card mt-8">
         <h3 className="theme-title">Operations roster</h3>
         <p className="theme-subtitle">Search by caretaker ID, phone number, skill, or status.</p>
-        <div style={{ marginTop: "1rem" }}>
+        <div className="mt-4">
           <Input
             label="Search caretakers"
             onChange={(event) => setQuery(event.target.value)}
@@ -90,7 +94,7 @@ const CaretakerListPage = () => {
             value={query}
           />
         </div>
-        <div style={{ marginTop: "1rem" }}>
+        <div className="mt-4">
           {filteredItems.length ? (
             <Table
               columns={columns}

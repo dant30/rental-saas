@@ -5,6 +5,8 @@ export interface TableColumn<T> {
   key: string;
   header: ReactNode;
   render: (row: T) => ReactNode;
+  /** Optional custom classname for the table cell (e.g. for tighter padding). */
+  cellClassName?: string;
 }
 
 export interface TableProps<T> {
@@ -55,7 +57,13 @@ const Table = <T,>({
               onClick={onRowClick ? () => onRowClick(row) : undefined}
             >
               {columns.map((column) => (
-                <td key={column.key} className="px-4 py-3 text-sm text-app-primary">
+                <td
+                  key={column.key}
+                  className={cn(
+                    "px-4 py-3 text-sm text-app-primary",
+                    column.cellClassName,
+                  )}
+                >
                   {column.render(row)}
                 </td>
               ))}

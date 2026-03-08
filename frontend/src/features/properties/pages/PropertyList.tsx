@@ -1,5 +1,6 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Pencil } from "lucide-react";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
@@ -50,13 +51,16 @@ const PropertyListPage = () => {
     {
       key: "actions",
       header: "",
+      cellClassName: "px-2 py-2 text-right",
       render: (property) => (
         <Link
-          className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-primary-600 hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-slate-700"
           onClick={(event) => event.stopPropagation()}
           to={`/app/properties/${property.id}`}
+          aria-label="Edit property"
+          title="Edit property"
         >
-          Edit
+          <Pencil className="h-4 w-4" />
         </Link>
       ),
     },
@@ -91,8 +95,8 @@ const PropertyListPage = () => {
         </article>
       </section>
 
-      <section className="theme-surface activity-card" style={{ marginTop: "2rem" }}>
-        <div className="page-header" style={{ marginBottom: "1rem" }}>
+      <section className="theme-surface activity-card mt-8">
+        <div className="page-header mb-4">
           <div>
             <h3 className="theme-title">Property register</h3>
             <p className="theme-subtitle">Search and scan your active portfolio inventory.</p>
@@ -104,7 +108,7 @@ const PropertyListPage = () => {
           placeholder="Filter by name, type, address, or city"
           value={query}
         />
-        <div style={{ marginTop: "1rem" }}>
+        <div className="mt-4">
           {status === "loading" ? (
             <p className="theme-subtitle">Loading properties...</p>
           ) : filteredItems.length ? (

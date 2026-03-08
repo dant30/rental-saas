@@ -1,14 +1,16 @@
-import { Building2, CreditCard, Bell, Home, Shield, Users, Wrench, Wallet } from "lucide-react";
+import { Bell, Building2, ChevronDown, CreditCard, Home, Shield, Users, Wallet, Wrench } from "lucide-react";
 import type { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 import { getStoredSession } from "../../router/PrivateRoute";
 import { cn } from "../../core/utils/cn";
 import { t } from "../../core/i18n/i18n";
 
 interface NavItem {
-  to: string;
+  to?: string;
   label: string;
+  children?: Array<{ to: string; label: string }>;
 }
 
 interface SidebarProps {
@@ -32,6 +34,7 @@ const iconMap: Record<string, ReactNode> = {
 const Sidebar = ({ items, onNavigate, onClose }: SidebarProps) => {
   const session = getStoredSession();
   const location = useLocation();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -79,12 +82,79 @@ const Sidebar = ({ items, onNavigate, onClose }: SidebarProps) => {
           {items.map((item) => {
             const key = item.label.toLowerCase();
             const icon = iconMap[key] ?? <Home className="h-4 w-4" />;
+
+            const children = item.children ?? [];
+            const isChildActive = children.some((child) =>
+              location.pathname === child.to || (child.to !== "/" && location.pathname.startsWith(child.to)),
+            );
             const isActive =
-              location.pathname === item.to ||
-              (item.to !== "/" && location.pathname.startsWith(item.to));
+              (item.to && (location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to)))) ||
+              isChildActive;
+
+            const isOpen = Boolean(openGroups[item.label] ?? isChildActive);
+
+            if (children.length) {
+              return (
+                <div key={item.label}>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                      "hover:bg-gray-100 dark:hover:bg-slate-700/50",
+                      isActive
+                        ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                        : "text-gray-700 dark:text-gray-300",
+                    )}
+                    onClick={() =>
+                      setOpenGroups((current) => ({
+                        ...current,
+                        [item.label]: !isOpen,
+                      }))
+                    }
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={cn(
+                          isActive ? "text-blue-500 dark:text-blue-400" : "text-gray-500 dark:text-gray-400",
+                        )}
+                      >
+                        {icon}
+                      </span>
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronDown
+                      className={cn("h-4 w-4 text-gray-400 transition-transform", isOpen && "rotate-180")}
+                    />
+                  </button>
+
+                  {isOpen ? (
+                    <div className="space-y-1 pl-10">
+                      {children.map((child) => (
+                        <NavLink
+                          className={({ isActive: childActive }) =>
+                            cn(
+                              "block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                              "hover:bg-gray-100 dark:hover:bg-slate-700/50",
+                              childActive
+                                ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                                : "text-gray-700 dark:text-gray-300",
+                            )
+                          }
+                          key={child.to}
+                          onClick={onNavigate}
+                          to={child.to}
+                        >
+                          {child.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            }
 
             return (
-              <NavLink className="block" key={item.to} onClick={onNavigate} to={item.to}>
+              <NavLink className="block" key={item.to ?? item.label} onClick={onNavigate} to={item.to ?? "#"}>
                 <div
                   className={cn(
                     "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
