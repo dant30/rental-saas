@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
 
 import Header from "../../../components/layout/Header";
 import EmptyState from "../../../components/shared/EmptyState";
@@ -68,49 +69,71 @@ const prettyLabel = (key: string) =>
 
 const DashboardPage = () => {
   const session = getStoredSession();
-  const dashboardRole = roleSummaryMap[session.role];
-  const { status, summary } = useDashboard(dashboardRole);
-  const summaryEntries = Object.entries(summary || {});
+  const dashboardRole = (roleSummaryMap as Record<string, string>)[session.role] ?? "owner";
+  const dashboardLinks = (roleLinksMap as Record<string, typeof roleLinksMap[keyof typeof roleLinksMap]>)[
+    session.role
+  ] ?? [];
 
-  const metrics = summaryEntries
-    .filter(([, value]) => typeof value === "number" || typeof value === "string")
-    .slice(0, 6)
-    .map(([key, value]) => {
-      const numericValue = Number(value);
-      const display =
-        Number.isFinite(numericValue) && key.toLowerCase().includes("amount")
-          ? formatCurrency(numericValue)
-          : String(value);
+  const title = (roleTitleMap as Record<string, string>)[session.role] ?? "Workspace dashboard";
+  const subtitle =
+    (roleSubtitleMap as Record<string, string>)[session.role] ??
+    "Get a quick view of key metrics and next steps for your workspace.";
 
-      return {
-        label: prettyLabel(key),
-        value: display,
-      };
-    });
+  const { status, summary, error } = useDashboard(dashboardRole as "owner" | "tenant" | "caretaker");
 
-  const narrative = summaryEntries
-    .filter(([, value]) => typeof value === "string")
-    .slice(0, 3)
-    .map(([key, value]) => ({
-      title: prettyLabel(key),
-      description: String(value),
-    }));
+  const { metrics, narrative } = useMemo(() => {
+    const summaryEntries = Object.entries(summary ?? {});
+
+    const metrics = summaryEntries
+      .filter(([, value]) => typeof value === "number" || typeof value === "string")
+      .slice(0, 6)
+      .map(([key, value]) => {
+        const numericValue = Number(value);
+        const display =
+          Number.isFinite(numericValue) && key.toLowerCase().includes("amount")
+            ? formatCurrency(numericValue)
+            : String(value);
+
+        return {
+          label: prettyLabel(key),
+          value: display,
+        };
+      });
+
+    const narrative = summaryEntries
+      .filter(([, value]) => typeof value === "string")
+      .slice(0, 3)
+      .map(([key, value]) => ({
+        title: prettyLabel(key),
+        description: String(value),
+      }));
+
+    return { metrics, narrative };
+  }, [summary]);
 
   return (
     <>
-      <Header subtitle={roleSubtitleMap[session.role]} title={roleTitleMap[session.role]} />
+      <Header subtitle={subtitle} title={title} />
 
       {status === "loading" ? (
         <Loading fullscreen label="Loading workspace summary..." />
+      ) : status === "error" ? (
+        <EmptyState
+          description={
+            error ??
+            "We couldn’t load dashboard metrics right now. Please try again in a moment."
+          }
+          title="Unable to load dashboard"
+        />
       ) : (
         <>
           <section className="hero-grid">
             <article className="theme-surface hero-card">
               <span className="eyebrow">Role</span>
               <h3>{session.role}</h3>
-              <p className="page-subtitle">{roleSubtitleMap[session.role]}</p>
-              <div className="inline-actions" style={{ marginTop: "1rem" }}>
-                {roleLinksMap[session.role].map((item) => (
+              <p className="page-subtitle">{subtitle}</p>
+              <div className="inline-actions mt-4">
+                {dashboardLinks.map((item) => (
                   <Link className="nav-link" key={item.to} to={item.to}>
                     {item.label}
                   </Link>
@@ -121,7 +144,7 @@ const DashboardPage = () => {
             <article className="theme-surface hero-card">
               <span className="eyebrow">Snapshot</span>
               {metrics.length ? (
-                <div className="stats-grid" style={{ marginTop: "1rem" }}>
+                <div className="stats-grid mt-4">
                   {metrics.slice(0, 3).map((metric) => (
                     <div className="theme-kpi" key={metric.label}>
                       <span className="theme-caption">{metric.label}</span>
@@ -139,7 +162,7 @@ const DashboardPage = () => {
           </section>
 
           {metrics.length ? (
-            <section className="stats-grid" style={{ marginTop: "2rem" }}>
+            <section className="stats-grid mt-8">
               {metrics.map((metric) => (
                 <article className="glass-panel metric-card" key={metric.label}>
                   <span className="status-badge">{metric.label}</span>
@@ -149,7 +172,7 @@ const DashboardPage = () => {
             </section>
           ) : null}
 
-          <section className="report-grid" style={{ marginTop: "2rem" }}>
+          <section className="report-grid mt-8">
             <article className="surface-panel activity-card">
               <h3>Operational narrative</h3>
               {narrative.length ? (
@@ -157,9 +180,7 @@ const DashboardPage = () => {
                   {narrative.map((item) => (
                     <div key={item.title}>
                       <strong>{item.title}</strong>
-                      <p style={{ color: "var(--text-secondary)", margin: "0.25rem 0 0" }}>
-                        {item.description}
-                      </p>
+                      <p className="text-app-muted mt-1">{item.description}</p>
                     </div>
                   ))}
                 </div>
@@ -174,7 +195,7 @@ const DashboardPage = () => {
             <article className="theme-surface activity-card">
               <h3>Role-driven next steps</h3>
               <div className="stack-list">
-                {roleLinksMap[session.role].map((item) => (
+                {dashboardLinks.map((item) => (
                   <Link className="nav-link" key={item.to} to={item.to}>
                     {item.label}
                   </Link>

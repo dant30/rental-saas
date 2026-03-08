@@ -91,6 +91,11 @@ export const apiClient = async <T>(path: string, options: ApiRequestOptions = {}
   }
 
   if (!response.ok) {
+    if (response.status === 403) {
+      // Avoid noisy logging for expected permissions errors.
+      throw new Error("Forbidden");
+    }
+
     let detail = `${response.status} ${response.statusText}`;
     try {
       const payload = (await response.json()) as Record<string, unknown>;
