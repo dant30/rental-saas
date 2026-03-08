@@ -1,0 +1,46 @@
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+.theme-shell {
+  min-height: 100vh;
+  position: relative;
+}
+
+.theme-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(32, 36, 45, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(32, 36, 45, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 80%);
+  pointer-events: none;
+}
+
+.glass-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
+}
+
+.surface-panel {
+  background: var(--bg-panel-strong);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-ink-950), var(--color-mint-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-theme="dark"] .text-gradient {
+  background: linear-gradient(135deg, var(--color-white), var(--color-mint-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+}

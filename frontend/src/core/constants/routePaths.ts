@@ -1,0 +1,18 @@
+export const routePaths = {
+  root: "/",
+  login: "/login",
+  register: "/register",
+  forgotPassword: "/forgot-password",
+  dashboard: "/app",
+  reports: "/app/reports",
+  properties: "/app/properties",
+  tenants: "/app/tenants",
+  payments: "/app/payments",
+  arrears: "/app/arrears",
+  expenses: "/app/expenses",
+  notifications: "/app/notifications",
+  maintenance: "/app/maintenance",
+  messages: "/app/messages",
+  tenantPortal: "/app/tenant-portal",
+  admin: "/admin",
+} as const;

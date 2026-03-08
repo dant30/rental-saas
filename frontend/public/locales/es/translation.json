@@ -1,0 +1,16 @@
+{
+  "appName": "Rental SaaS",
+  "navigation": {
+    "overview": "Resumen",
+    "reports": "Reportes",
+    "maintenance": "Mantenimiento",
+    "messages": "Mensajes",
+    "tenantPortal": "Portal del Inquilino",
+    "admin": "Administración"
+  },
+  "auth": {
+    "login": "Ingresar",
+    "register": "Registrarse",
+    "forgotPassword": "Olvidé mi contraseña"
+  }
+}

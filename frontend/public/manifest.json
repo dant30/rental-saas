@@ -1,0 +1,10 @@
+{
+  "name": "Rental SaaS",
+  "short_name": "RentalSaaS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5efe3",
+  "theme_color": "#38a98f",
+  "description": "Rental property operations platform.",
+  "icons": []
+}

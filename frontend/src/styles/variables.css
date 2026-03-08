@@ -1,0 +1,69 @@
+:root {
+  --font-display: "Sora", "Segoe UI", sans-serif;
+  --font-body: "Manrope", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", monospace;
+  --color-ink-950: #16181d;
+  --color-ink-900: #20242d;
+  --color-ink-800: #2c3440;
+  --color-sand-100: #f5efe3;
+  --color-sand-200: #ece2d0;
+  --color-sand-300: #dcc9a7;
+  --color-mint-300: #7fd1b9;
+  --color-mint-500: #38a98f;
+  --color-gold-400: #d9a441;
+  --color-red-500: #d85f5f;
+  --color-blue-500: #4e88da;
+  --color-white: #ffffff;
+  --bg-page: radial-gradient(circle at top left, rgba(127, 209, 185, 0.25), transparent 28%),
+    radial-gradient(circle at top right, rgba(217, 164, 65, 0.22), transparent 22%),
+    linear-gradient(180deg, #f9f4ea 0%, #f1e8d8 100%);
+  --bg-panel: rgba(255, 255, 255, 0.72);
+  --bg-panel-strong: rgba(255, 255, 255, 0.92);
+  --bg-dark: rgba(22, 24, 29, 0.9);
+  --border-soft: rgba(32, 36, 45, 0.08);
+  --border-strong: rgba(32, 36, 45, 0.16);
+  --shadow-soft: 0 18px 50px rgba(27, 31, 38, 0.08);
+  --shadow-strong: 0 24px 80px rgba(27, 31, 38, 0.16);
+  --text-primary: var(--color-ink-950);
+  --text-secondary: rgba(32, 36, 45, 0.72);
+  --text-muted: rgba(32, 36, 45, 0.54);
+  --text-inverse: rgba(255, 255, 255, 0.94);
+  --success: #2e946d;
+  --warning: #b27b18;
+  --danger: var(--color-red-500);
+  --info: var(--color-blue-500);
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --content-max: 1240px;
+  --sidebar-width: 280px;
+  --header-height: 76px;
+  --transition-base: 180ms ease;
+}
+
+[data-theme="dark"] {
+  --bg-page: radial-gradient(circle at top left, rgba(56, 169, 143, 0.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(217, 164, 65, 0.14), transparent 24%),
+    linear-gradient(180deg, #121418 0%, #1a2028 100%);
+  --bg-panel: rgba(31, 36, 44, 0.72);
+  --bg-panel-strong: rgba(31, 36, 44, 0.95);
+  --bg-dark: rgba(12, 14, 18, 0.94);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --shadow-soft: 0 18px 50px rgba(0, 0, 0, 0.24);
+  --shadow-strong: 0 24px 80px rgba(0, 0, 0, 0.34);
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.58);
+}
