@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from "react";
+﻿import type { ComponentType, ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface CardProps {
@@ -31,7 +31,7 @@ export interface CardFooterProps {
 export const Card = ({ children, className, hoverable = false, glass = false }: CardProps) => (
   <div
     className={cn(
-      glass ? "glass" : "card",
+      glass ? "glass-panel" : "card",
       hoverable && "hover-lift transition-shadow hover:shadow-md",
       className,
     )}
@@ -56,11 +56,11 @@ export const CardHeader = ({
       <div className="space-y-1">
         {title ? (
           <div className="flex items-center gap-2">
-            {Icon ? <Icon className="h-5 w-5 text-primary-600" /> : null}
-            <h4 className="text-base font-semibold text-app-primary">{title}</h4>
+            {Icon ? <Icon className="h-5 w-5 text-brand-500" /> : null}
+            <h4 className="text-base font-semibold text-[color:var(--text-primary)]">{title}</h4>
           </div>
         ) : null}
-        {description ? <p className="text-sm text-app-muted">{description}</p> : null}
+        {description ? <p className="text-sm text-[color:var(--text-muted)]">{description}</p> : null}
       </div>
       {action ? <div>{action}</div> : null}
     </div>
@@ -76,3 +76,4 @@ export const CardFooter = ({ children, className, bordered = true }: CardFooterP
 );
 
 export default Card;
+

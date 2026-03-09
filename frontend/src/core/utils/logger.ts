@@ -1,5 +1,12 @@
+const LOG_PREFIX = "[frontend]";
+const isDevelopment = import.meta.env.DEV;
+
 export const logger = {
-  info: (...args: unknown[]) => console.info("[frontend]", ...args),
-  warn: (...args: unknown[]) => console.warn("[frontend]", ...args),
-  error: (...args: unknown[]) => console.error("[frontend]", ...args),
+  info: (...args: unknown[]) => {
+    if (isDevelopment) {
+      console.info(LOG_PREFIX, ...args);
+    }
+  },
+  warn: (...args: unknown[]) => console.warn(LOG_PREFIX, ...args),
+  error: (...args: unknown[]) => console.error(LOG_PREFIX, ...args),
 };

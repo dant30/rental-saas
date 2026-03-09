@@ -6,3 +6,9 @@ export interface ExpenseRecord {
   vendor_name?: string;
   ocr_status?: string;
 }
+
+export interface ExpenseCreatePayload {
+  title: string;
+  amount: number;
+  vendor?: string;
+}

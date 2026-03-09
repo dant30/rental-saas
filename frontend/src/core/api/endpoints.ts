@@ -36,4 +36,6 @@ export const endpoints = {
   caretakers: "/caretakers/",
   maintenanceRequests: "/maintenance-requests/",
   maintenanceSchedules: "/maintenance-schedules/",
-};
+} as const;
+
+export type Endpoints = typeof endpoints;

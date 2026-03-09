@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo } from "react";
 
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
@@ -17,17 +17,21 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.colorScheme = theme;
   }, [theme]);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     const nextTheme = theme === "light" ? "dark" : "light";
     setTheme(nextTheme);
-  };
+  }, [setTheme, theme]);
+
+  const value = useMemo(
+    () => ({ theme, isDark: theme === "dark", toggleTheme }),
+    [theme, toggleTheme],
+  );
 
   return (
-    <ThemeContext.Provider value={{ theme, isDark: theme === "dark", toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 

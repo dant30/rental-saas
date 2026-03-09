@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+﻿import { useState, type ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface TabItem {
@@ -19,14 +19,16 @@ const Tabs = ({ items, defaultValue, className }: TabsProps) => {
 
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="flex flex-wrap gap-2">
+      <div className="inline-flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-panel)] p-1 shadow-soft">
         {items.map((item) => (
           <button
             key={item.value}
             type="button"
             className={cn(
-              "rounded-full px-4 py-2 text-sm font-medium",
-              item.value === current?.value ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-200",
+              "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+              item.value === current?.value
+                ? "bg-brand-500 text-white shadow-sm"
+                : "text-[color:var(--text-secondary)] hover:bg-slate-100/80 hover:text-[color:var(--text-primary)] dark:hover:bg-slate-800/80",
             )}
             onClick={() => setActive(item.value)}
           >
@@ -34,9 +36,10 @@ const Tabs = ({ items, defaultValue, className }: TabsProps) => {
           </button>
         ))}
       </div>
-      <div>{current?.content}</div>
+      <div className="animate-fade-in">{current?.content}</div>
     </div>
   );
 };
 
 export default Tabs;
+

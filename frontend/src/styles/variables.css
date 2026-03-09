@@ -74,9 +74,16 @@
   --sidebar-width: 280px;
   --header-height: 76px;
   --transition-base: 180ms ease;
+  --transition-slow: 260ms ease;
+  --ring-primary: rgba(11, 105, 163, 0.22);
+  --layer-dropdown: 40;
+  --layer-sticky: 50;
+  --layer-overlay: 60;
+  --layer-toast: 70;
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg-page: radial-gradient(circle at top left, rgba(56, 169, 143, 0.18), transparent 28%),
     radial-gradient(circle at bottom right, rgba(217, 164, 65, 0.14), transparent 24%),
     linear-gradient(180deg, #121418 0%, #1a2028 100%);

@@ -1,4 +1,4 @@
-import { forwardRef, useId, type ChangeEvent, type InputHTMLAttributes, type ReactNode } from "react";
+﻿import { forwardRef, useId, type ChangeEvent, type InputHTMLAttributes, type ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface RadioOption {
@@ -34,14 +34,17 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
           ref={ref}
           id={inputId}
           type="radio"
-          className={cn("mt-1 h-4 w-4 border-gray-300 text-primary-600 focus:ring-primary-500", className)}
+          className={cn(
+            "mt-1 h-4 w-4 border-gray-300 text-brand-500 shadow-sm transition-colors focus:ring-brand-500",
+            className,
+          )}
           onChange={onChange}
           {...props}
         />
         <span className="space-y-0.5">
           <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label || children}</span>
-          {description ? <span className="block text-sm text-app-muted">{description}</span> : null}
-          {error ? <span className="block text-sm text-danger-500">{error}</span> : null}
+          {description ? <span className="block text-sm text-[color:var(--text-muted)]">{description}</span> : null}
+          {error ? <span className="block text-sm text-[color:var(--danger)]">{error}</span> : null}
         </span>
       </label>
     );
@@ -75,3 +78,4 @@ export const RadioGroup = ({ name, value, options, onChange, className, label }:
 };
 
 export default Radio;
+

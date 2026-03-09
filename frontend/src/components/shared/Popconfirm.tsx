@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import Button from "./Button";
 
 export interface PopconfirmProps {
@@ -11,8 +11,8 @@ export interface PopconfirmProps {
 const Popconfirm = ({ title, description, onConfirm, onCancel }: PopconfirmProps) => (
   <div className="rounded-xl border bg-white p-4 shadow-hard dark:border-slate-700 dark:bg-slate-900">
     <div className="space-y-1">
-      <div className="font-medium text-app-primary">{title}</div>
-      {description ? <div className="text-sm text-app-muted">{description}</div> : null}
+      <div className="font-medium text-[color:var(--text-primary)]">{title}</div>
+      {description ? <div className="text-sm text-[color:var(--text-muted)]">{description}</div> : null}
     </div>
     <div className="mt-4 flex justify-end gap-2">
       <Button variant="outline" onClick={onCancel}>
@@ -24,3 +24,4 @@ const Popconfirm = ({ title, description, onConfirm, onCancel }: PopconfirmProps
 );
 
 export default Popconfirm;
+

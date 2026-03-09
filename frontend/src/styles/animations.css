@@ -40,12 +40,12 @@
 
 .anim-fade-in,
 .animate-fade-in {
-  animation: fade-in 0.2s ease-out;
+  animation: fade-in 0.2s ease-out both;
 }
 
 .anim-slide-up,
 .animate-fade-up {
-  animation: slide-up 0.24s ease-out;
+  animation: slide-up 0.24s ease-out both;
 }
 
 .anim-spin {
@@ -53,5 +53,5 @@
 }
 
 .anim-slide-in-right {
-  animation: slide-in-right 0.2s ease-out;
+  animation: slide-in-right 0.2s ease-out both;
 }

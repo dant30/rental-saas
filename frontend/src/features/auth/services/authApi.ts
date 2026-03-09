@@ -2,6 +2,7 @@ import { apiClient, authTokenStorage, AuthTokens } from "../../../core/api/axios
 import { endpoints } from "../../../core/api/endpoints";
 import { AppRole, AuthSession, saveStoredSession } from "../../../router/PrivateRoute";
 import {
+  AuthTokensResponse,
   LoginPayload,
   PasswordResetConfirmPayload,
   PasswordResetPayload,
@@ -33,6 +34,11 @@ const roleFeatureMap: Record<AppRole, string[]> = {
   tenant: ["tenant_portal", "messaging"],
 };
 
+const toRegisterRequest = (payload: RegisterPayload): Omit<RegisterPayload, "confirm_password"> => {
+  const { confirm_password, ...request } = payload;
+  return request;
+};
+
 export const buildSessionFromProfile = (profile: UserProfile): AuthSession => {
   const role = resolveRole(profile);
   return {
@@ -46,15 +52,18 @@ export const buildSessionFromProfile = (profile: UserProfile): AuthSession => {
 
 export const authApi = {
   async login(payload: LoginPayload) {
-    const tokens = await apiClient<AuthTokens>(endpoints.auth.login, {
+    const tokens = await apiClient<AuthTokensResponse>(endpoints.auth.login, {
       method: "POST",
       body: payload,
     });
-    authTokenStorage.set(tokens);
+    authTokenStorage.set(tokens as AuthTokens);
     return tokens;
   },
   register: (payload: RegisterPayload) =>
-    apiClient<UserProfile>(endpoints.auth.register, { method: "POST", body: payload }),
+    apiClient<UserProfile>(endpoints.auth.register, {
+      method: "POST",
+      body: toRegisterRequest(payload),
+    }),
   me: () => apiClient<UserProfile>(endpoints.auth.me),
   logout: (refresh: string) =>
     apiClient<void>(endpoints.auth.logout, { method: "POST", body: { refresh } }),

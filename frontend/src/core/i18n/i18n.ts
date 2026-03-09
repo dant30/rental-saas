@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { AppLocale } from "./locales";
+import { AppLocale, supportedLocales } from "./locales";
 
 type TranslationMap = Record<string, unknown>;
 
@@ -11,7 +11,15 @@ declare global {
 }
 
 export const loadTranslations = async (locale: AppLocale) => {
+  const cached = typeof window !== "undefined" ? window.__rentalTranslations?.[locale] : undefined;
+  if (cached) {
+    return cached;
+  }
+
   const response = await fetch(`/locales/${locale}/translation.json`);
+  if (!response.ok) {
+    throw new Error(`Unable to load translations for ${locale}`);
+  }
   const payload = (await response.json()) as TranslationMap;
   if (typeof window !== "undefined") {
     window.__rentalTranslations = {
@@ -23,10 +31,30 @@ export const loadTranslations = async (locale: AppLocale) => {
 };
 
 export const useTranslations = (locale: AppLocale = "en") => {
-  const [translations, setTranslations] = useState<TranslationMap>({});
+  const [translations, setTranslations] = useState<TranslationMap>(() => {
+    if (typeof window === "undefined") {
+      return {};
+    }
+    return window.__rentalTranslations?.[locale] || {};
+  });
 
   useEffect(() => {
-    loadTranslations(locale).then(setTranslations).catch(() => setTranslations({}));
+    let cancelled = false;
+    loadTranslations(locale)
+      .then((payload) => {
+        if (!cancelled) {
+          setTranslations(payload);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTranslations({});
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [locale]);
 
   return translations;
@@ -45,7 +73,8 @@ export const t = (key: string, fallback?: string) => {
     return fallback ?? key;
   }
 
-  const locale = (window.localStorage.getItem("rental_saas_locale") as AppLocale | null) || "en";
+  const rawLocale = window.localStorage.getItem("rental_saas_locale");
+  const locale = supportedLocales.includes(rawLocale as AppLocale) ? (rawLocale as AppLocale) : "en";
   const localeMessages = window.__rentalTranslations?.[locale] ?? window.__rentalTranslations?.en;
   const value = localeMessages ? getNestedTranslation(localeMessages, key) : undefined;
 

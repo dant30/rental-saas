@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../constants/appConstants";
 import { localStorageService } from "../storage/localStorage";
 import { handleError } from "../utils/errorHandler";
+import { endpoints } from "./endpoints";
 
 export type HttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
@@ -17,7 +18,7 @@ export interface AuthTokens {
   refresh: string;
 }
 
-const AUTH_TOKENS_KEY = "rental_saas_tokens";
+export const AUTH_TOKENS_KEY = "rental_saas_tokens";
 
 export const authTokenStorage = {
   get: () => localStorageService.get<AuthTokens | null>(AUTH_TOKENS_KEY, null),
@@ -31,10 +32,25 @@ const buildHeaders = (options: ApiRequestOptions) => {
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-  if (options.body && !(options.body instanceof FormData)) {
+  if (options.body && !(options.body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
   return headers;
+};
+
+const buildApiUrl = (path: string) => `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+
+const parseResponse = async <T>(response: Response): Promise<T> => {
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const contentType = response.headers.get("content-type")?.toLowerCase() || "";
+  if (contentType.includes("application/json")) {
+    return (await response.json()) as T;
+  }
+
+  return (await response.text()) as T;
 };
 
 const tryRefreshToken = async () => {
@@ -43,13 +59,18 @@ const tryRefreshToken = async () => {
     return null;
   }
 
-  const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ refresh }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(buildApiUrl(endpoints.auth.tokenRefresh), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh }),
+    });
+  } catch {
+    return null;
+  }
 
   if (!response.ok) {
     authTokenStorage.clear();
@@ -73,7 +94,7 @@ export const apiClient = async <T>(path: string, options: ApiRequestOptions = {}
       ? JSON.stringify(options.body)
       : (options.body ?? undefined);
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     method: options.method || "GET",
     headers,
     body,
@@ -106,9 +127,5 @@ export const apiClient = async <T>(path: string, options: ApiRequestOptions = {}
     throw new Error(handleError(detail));
   }
 
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return (await response.json()) as T;
+  return parseResponse<T>(response);
 };

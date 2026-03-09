@@ -1,4 +1,4 @@
-import type { LabelHTMLAttributes, ReactNode } from "react";
+﻿import type { LabelHTMLAttributes, ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
@@ -12,8 +12,9 @@ const Label = ({ children, className, required, hint, ...props }: LabelProps) =>
       {children}
       {required ? <span className="text-danger-500">*</span> : null}
     </span>
-    {hint ? <span className="ml-2 text-xs text-app-muted">{hint}</span> : null}
+    {hint ? <span className="ml-2 text-xs text-[color:var(--text-muted)]">{hint}</span> : null}
   </label>
 );
 
 export default Label;
+

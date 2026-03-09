@@ -3,7 +3,12 @@ export const sessionStorageService = {
     if (typeof window === "undefined") {
       return fallback;
     }
-    const raw = window.sessionStorage.getItem(key);
+    let raw: string | null = null;
+    try {
+      raw = window.sessionStorage.getItem(key);
+    } catch {
+      return fallback;
+    }
     if (!raw) {
       return fallback;
     }
@@ -15,12 +20,20 @@ export const sessionStorageService = {
   },
   set<T>(key: string, value: T) {
     if (typeof window !== "undefined") {
-      window.sessionStorage.setItem(key, JSON.stringify(value));
+      try {
+        window.sessionStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        // Storage can fail in private mode, quota overflow, or blocked contexts.
+      }
     }
   },
   remove(key: string) {
     if (typeof window !== "undefined") {
-      window.sessionStorage.removeItem(key);
+      try {
+        window.sessionStorage.removeItem(key);
+      } catch {
+        // noop
+      }
     }
   },
 };

@@ -7,10 +7,11 @@ interface TenantContextValue {
 
 const TenantContext = createContext<TenantContextValue | undefined>(undefined);
 
+const getInitialTenantDomain = () =>
+  typeof window === "undefined" ? "localhost" : window.location.hostname.toLowerCase();
+
 export const TenantProvider = ({ children }: { children: ReactNode }) => {
-  const [tenantDomain, setTenantDomain] = useState(
-    typeof window === "undefined" ? "localhost" : window.location.hostname,
-  );
+  const [tenantDomain, setTenantDomain] = useState(getInitialTenantDomain);
   const value = useMemo(() => ({ tenantDomain, setTenantDomain }), [tenantDomain]);
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;
 };

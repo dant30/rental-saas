@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface DescriptionItem {
@@ -23,11 +23,12 @@ const Descriptions = ({ items, columns = 2, className }: DescriptionsProps) => (
   <dl className={cn("grid gap-4", columnClasses[columns], className)}>
     {items.map((item) => (
       <div key={item.key} className="rounded-xl border p-4 dark:border-slate-700">
-        <dt className="text-xs uppercase tracking-[0.18em] text-app-muted">{item.label}</dt>
-        <dd className="mt-2 text-sm font-medium text-app-primary">{item.value}</dd>
+        <dt className="text-xs uppercase tracking-[0.18em] text-[color:var(--text-muted)]">{item.label}</dt>
+        <dd className="mt-2 text-sm font-medium text-[color:var(--text-primary)]">{item.value}</dd>
       </div>
     ))}
   </dl>
 );
 
 export default Descriptions;
+

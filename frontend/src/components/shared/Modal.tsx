@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@utils/cn";
 
@@ -47,8 +47,8 @@ const ModalBase = ({ open, isOpen, visible, onClose, title, description, childre
         {(title || description || showCloseButton) ? (
           <div className="flex items-start justify-between border-b px-6 py-4 dark:border-slate-700">
             <div>
-              {title ? <h3 className="text-lg font-semibold text-app-primary">{title}</h3> : null}
-              {description ? <p className="mt-1 text-sm text-app-muted">{description}</p> : null}
+              {title ? <h3 className="text-lg font-semibold text-[color:var(--text-primary)]">{title}</h3> : null}
+              {description ? <p className="mt-1 text-sm text-[color:var(--text-muted)]">{description}</p> : null}
             </div>
             {showCloseButton ? (
               <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-slate-800" aria-label="Close">
@@ -69,7 +69,7 @@ export const ModalFooter = ({ children, className }: ModalFooterProps) => (
 
 export const ModalSection = ({ children, title, className }: ModalSectionProps) => (
   <section className={cn("space-y-3", className)}>
-    {title ? <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-app-muted">{title}</h4> : null}
+    {title ? <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">{title}</h4> : null}
     {children}
   </section>
 );
@@ -111,3 +111,4 @@ Modal.Footer = ModalFooter;
 Modal.Section = ModalSection;
 
 export default Modal;
+

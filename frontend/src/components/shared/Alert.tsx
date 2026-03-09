@@ -20,9 +20,9 @@ const iconMap = {
 
 const variantClasses: Record<AlertVariant, string> = {
   info: "border-blue-200 bg-blue-50 text-blue-800",
-  success: "border-success-200 bg-success-50 text-success-800",
-  warning: "border-warning-200 bg-warning-50 text-warning-800",
-  danger: "border-danger-200 bg-danger-50 text-danger-800",
+  success: "border-[color:var(--success)]/35 bg-[color:var(--success)]/10 text-[color:var(--success)]",
+  warning: "border-[color:var(--warning)]/35 bg-[color:var(--warning)]/12 text-[color:var(--warning)]",
+  danger: "border-[color:var(--danger)]/35 bg-[color:var(--danger)]/10 text-[color:var(--danger)]",
 };
 
 const Alert = ({ variant = "info", title, description, onDismiss, children, className, ...props }: AlertProps) => {

@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from "react";
+﻿import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface LoadingProps extends HTMLAttributes<HTMLDivElement> {
@@ -9,7 +9,7 @@ export interface LoadingProps extends HTMLAttributes<HTMLDivElement> {
 const Loading = ({ label = "Loading...", fullscreen = false, className, ...props }: LoadingProps) => (
   <div
     className={cn(
-      "flex items-center justify-center gap-3 text-app-muted",
+      "flex items-center justify-center gap-3 text-[color:var(--text-muted)]",
       fullscreen && "min-h-[50vh]",
       className,
     )}
@@ -21,3 +21,4 @@ const Loading = ({ label = "Loading...", fullscreen = false, className, ...props
 );
 
 export default Loading;
+

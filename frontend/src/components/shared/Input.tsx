@@ -1,4 +1,4 @@
-import {
+﻿import {
   forwardRef,
   useId,
   useState,
@@ -32,8 +32,8 @@ const sizeClasses: Record<InputSize, string> = {
 };
 
 const variantClasses: Record<InputVariant, string> = {
-  outline: "border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800",
-  filled: "border-transparent bg-gray-50 dark:bg-slate-700",
+  outline: "border-gray-300 bg-white/90 dark:border-slate-600 dark:bg-slate-800/90",
+  filled: "border-transparent bg-slate-100/80 dark:bg-slate-700/80",
   ghost: "border-transparent bg-transparent",
 };
 
@@ -82,9 +82,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ) : null}
         <div
           className={cn(
-            "ui-control relative flex items-center focus-within:border-transparent focus-within:ring-2 focus-within:ring-primary-500",
+            "ui-control relative flex items-center focus-within:border-transparent focus-within:ring-2 focus-within:ring-brand-500",
+            "shadow-sm",
             variantClasses[variant],
-            error && "border-danger-500 focus-within:ring-danger-500",
+            error && "border-danger-500 focus-within:ring-danger-400",
             disabled && "cursor-not-allowed opacity-60",
           )}
         >
@@ -160,3 +161,4 @@ export const SearchInput = forwardRef<HTMLInputElement, InputProps>((props, ref)
 SearchInput.displayName = "SearchInput";
 
 export default Input;
+

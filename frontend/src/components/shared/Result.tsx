@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import Button from "./Button";
 
 type ResultTone = "success" | "warning" | "danger" | "info";
@@ -19,8 +19,8 @@ const toneClassMap: Record<ResultTone, string> = {
 
 const Result = ({ title, subtitle, extra, tone = "info" }: ResultProps) => (
   <div className={`rounded-2xl border px-6 py-8 text-center ${toneClassMap[tone]}`}>
-    <h3 className="text-lg font-semibold text-app-primary">{title}</h3>
-    {subtitle ? <p className="mt-2 text-sm text-app-muted">{subtitle}</p> : null}
+    <h3 className="text-lg font-semibold text-[color:var(--text-primary)]">{title}</h3>
+    {subtitle ? <p className="mt-2 text-sm text-[color:var(--text-muted)]">{subtitle}</p> : null}
     {extra ? <div className="mt-4">{extra}</div> : null}
   </div>
 );
@@ -32,3 +32,4 @@ export const ResultAction = ({ children, onClick }: { children: ReactNode; onCli
 );
 
 export default Result;
+

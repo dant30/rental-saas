@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+﻿import type { ComponentType } from "react";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@utils/cn";
 
@@ -28,7 +28,7 @@ const Breadcrumb = ({ items = [], className }: BreadcrumbProps) => {
         <li>
           <a
             href="/"
-            className="flex items-center text-neutral-600 transition-colors duration-150 hover:text-primary-600 dark:text-neutral-400 dark:hover:text-primary-400"
+            className="flex items-center text-neutral-600 transition-colors duration-150 hover:text-brand-500 dark:text-neutral-400 dark:hover:text-brand-100"
           >
             <Home className="h-4 w-4" />
             <span className="sr-only">Home</span>
@@ -48,7 +48,7 @@ const Breadcrumb = ({ items = [], className }: BreadcrumbProps) => {
               ) : (
                 <a
                   href={item.href}
-                  className="text-neutral-600 transition-colors duration-150 hover:text-primary-600 dark:text-neutral-400 dark:hover:text-primary-400"
+                  className="text-neutral-600 transition-colors duration-150 hover:text-brand-500 dark:text-neutral-400 dark:hover:text-brand-100"
                 >
                   {item.label}
                 </a>
@@ -88,7 +88,7 @@ export const Breadcrumb2 = ({
               ) : (
                 <a
                   href={item.href}
-                  className="inline-flex items-center text-neutral-600 transition-colors duration-150 hover:text-primary-600 dark:text-neutral-400 dark:hover:text-primary-400"
+                  className="inline-flex items-center text-neutral-600 transition-colors duration-150 hover:text-brand-500 dark:text-neutral-400 dark:hover:text-brand-100"
                 >
                   {Icon ? <Icon className="mr-2 h-4 w-4" /> : null}
                   {item.label}
@@ -103,3 +103,4 @@ export const Breadcrumb2 = ({
 };
 
 export default Breadcrumb;
+

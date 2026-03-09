@@ -26,7 +26,7 @@ body,
 }
 
 html {
-  color-scheme: light;
+  color-scheme: light dark;
   font-size: 16px;
   scroll-behavior: smooth;
 }
@@ -34,10 +34,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(1200px 700px at 0% -10%, #e6f3ff 0%, transparent 50%),
-    radial-gradient(1000px 620px at 100% -20%, #eef7ff 0%, transparent 50%),
-    var(--fm-color-bg);
+  background: var(--bg-page);
   color: var(--fm-color-text);
   font-family: var(--fm-font-family-sans);
   line-height: 1.45;
@@ -115,4 +112,30 @@ img {
 
 .ui-scrollbar:hover::-webkit-scrollbar-thumb {
   background-color: rgba(148, 163, 184, 0.55);
+}
+
+[data-theme="dark"] .ui-scrollbar {
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+
+[data-theme="dark"] .ui-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.45);
+}
+
+[data-theme="dark"] .ui-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.62);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

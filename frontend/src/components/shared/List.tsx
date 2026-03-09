@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface ListProps<T> {
@@ -11,7 +11,7 @@ export interface ListProps<T> {
 
 const List = <T,>({ items, keyExtractor, renderItem, emptyText = "No items found", className }: ListProps<T>) => {
   if (!items.length) {
-    return <div className={cn("rounded-xl border p-4 text-sm text-app-muted dark:border-slate-700", className)}>{emptyText}</div>;
+    return <div className={cn("rounded-xl border p-4 text-sm text-[color:var(--text-muted)] dark:border-slate-700", className)}>{emptyText}</div>;
   }
 
   return (
@@ -26,3 +26,4 @@ const List = <T,>({ items, keyExtractor, renderItem, emptyText = "No items found
 };
 
 export default List;
+

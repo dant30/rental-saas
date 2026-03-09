@@ -17,6 +17,7 @@ body {
   background-size: 28px 28px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 80%);
   pointer-events: none;
+  z-index: 0;
 }
 
 .glass-panel {
@@ -64,7 +65,7 @@ body {
 }
 
 .theme-stat {
-  color: #0f2740;
+  color: var(--text-primary);
   font-size: var(--fm-font-2xl);
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -89,4 +90,9 @@ body {
   background: linear-gradient(135deg, var(--color-white), #7fc6ee);
   -webkit-background-clip: text;
   background-clip: text;
+}
+
+[data-theme="dark"] .theme-shell::before {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }

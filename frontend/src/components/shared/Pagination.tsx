@@ -1,4 +1,4 @@
-import Button from "./Button";
+﻿import Button from "./Button";
 import { cn } from "@utils/cn";
 
 export interface PaginationProps {
@@ -13,7 +13,7 @@ const Pagination = ({ page, totalPages, onPageChange, className }: PaginationPro
     <Button disabled={page <= 1} onClick={() => onPageChange(page - 1)} variant="outline">
       Previous
     </Button>
-    <span className="text-sm text-app-muted">
+    <span className="text-sm text-[color:var(--text-muted)]">
       Page {page} of {totalPages}
     </span>
     <Button disabled={page >= totalPages} onClick={() => onPageChange(page + 1)} variant="outline">
@@ -23,3 +23,4 @@ const Pagination = ({ page, totalPages, onPageChange, className }: PaginationPro
 );
 
 export default Pagination;
+

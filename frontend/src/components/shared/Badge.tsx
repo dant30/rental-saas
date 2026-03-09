@@ -31,7 +31,7 @@ const sizeClasses: Record<BadgeSize, string> = {
 const Badge = ({ variant = "primary", size = "md", rounded = "full", dot = false, className, children, ...props }: BadgeProps) => (
   <span
     className={cn(
-      "inline-flex items-center gap-1 font-medium",
+      "inline-flex items-center gap-1 border border-transparent font-semibold tracking-wide",
       rounded === "full" ? "rounded-full" : "rounded-md",
       sizeClasses[size],
       variantClasses[variant],

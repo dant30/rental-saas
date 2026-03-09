@@ -1,4 +1,4 @@
-import { forwardRef, useId, type ChangeEvent, type InputHTMLAttributes, type ReactNode } from "react";
+﻿import { forwardRef, useId, type ChangeEvent, type InputHTMLAttributes, type ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
@@ -35,7 +35,10 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             required={required}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? errorId : description ? descriptionId : undefined}
-            className={cn("mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500", className)}
+            className={cn(
+              "mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 shadow-sm transition-colors focus:ring-brand-500",
+              className,
+            )}
             onChange={handleChange}
             {...props}
           />
@@ -68,3 +71,4 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 Checkbox.displayName = "Checkbox";
 
 export default Checkbox;
+

@@ -3,7 +3,12 @@ export const localStorageService = {
     if (typeof window === "undefined") {
       return fallback;
     }
-    const raw = window.localStorage.getItem(key);
+    let raw: string | null = null;
+    try {
+      raw = window.localStorage.getItem(key);
+    } catch {
+      return fallback;
+    }
     if (!raw) {
       return fallback;
     }
@@ -15,12 +20,20 @@ export const localStorageService = {
   },
   set<T>(key: string, value: T) {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(key, JSON.stringify(value));
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        // Storage can fail in private mode, quota overflow, or blocked contexts.
+      }
     }
   },
   remove(key: string) {
     if (typeof window !== "undefined") {
-      window.localStorage.removeItem(key);
+      try {
+        window.localStorage.removeItem(key);
+      } catch {
+        // noop
+      }
     }
   },
 };

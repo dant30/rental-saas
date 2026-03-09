@@ -20,3 +20,5 @@ export const routePaths = {
   tenantPortal: "/app/tenant-portal",
   admin: "/admin",
 } as const;
+
+export type RoutePathKey = keyof typeof routePaths;

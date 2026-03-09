@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useMemo, useRef, useState } from "react";
 
 type Toast = { id: number; message: string; tone?: "info" | "success" | "warning" | "danger" };
 
@@ -12,15 +12,24 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const idCounter = useRef(0);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts((current) => current.filter((toast) => toast.id !== id));
+  }, []);
+
+  const pushToast = useCallback((message: string, tone: Toast["tone"] = "info") => {
+    idCounter.current += 1;
+    setToasts((current) => [...current, { id: idCounter.current, message, tone }]);
+  }, []);
 
   const value = useMemo<ToastContextValue>(
     () => ({
       toasts,
-      pushToast: (message, tone = "info") =>
-        setToasts((current) => [...current, { id: Date.now(), message, tone }]),
-      dismissToast: (id) => setToasts((current) => current.filter((toast) => toast.id !== id)),
+      pushToast,
+      dismissToast,
     }),
-    [toasts],
+    [dismissToast, pushToast, toasts],
   );
 
   return (
@@ -31,7 +40,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
           <button
             className={`status-badge${toast.tone ? ` status-badge--${toast.tone === "info" ? "success" : toast.tone}` : ""}`}
             key={toast.id}
-            onClick={() => value.dismissToast(toast.id)}
+            onClick={() => dismissToast(toast.id)}
             type="button"
           >
             {toast.message}

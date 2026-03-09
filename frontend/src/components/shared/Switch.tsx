@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface SwitchProps {
@@ -36,8 +36,8 @@ const Switch = ({ id, name, checked = false, onChange, label, description, disab
       disabled={disabled}
       onClick={() => onChange?.(!checked)}
       className={cn(
-        "relative mt-0.5 inline-flex h-6 w-11 rounded-full transition-colors",
-        checked ? "bg-primary-600" : "bg-gray-300 dark:bg-slate-600",
+        "relative mt-0.5 inline-flex h-6 w-11 rounded-full border border-transparent shadow-sm transition-colors",
+        checked ? "bg-brand-500" : "bg-gray-300 dark:bg-slate-600",
       )}
     >
       <span
@@ -49,8 +49,8 @@ const Switch = ({ id, name, checked = false, onChange, label, description, disab
     </button>
     <span className="space-y-0.5">
       {label ? <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span> : null}
-      {description ? <span className="block text-sm text-app-muted">{description}</span> : null}
-      {error ? <span className="block text-sm text-danger-500">{error}</span> : null}
+      {description ? <span className="block text-sm text-[color:var(--text-muted)]">{description}</span> : null}
+      {error ? <span className="block text-sm text-[color:var(--danger)]">{error}</span> : null}
     </span>
   </label>
 );
@@ -77,3 +77,4 @@ export const SwitchGroup = ({ options, values = [], onChange, className, label }
 };
 
 export default Switch;
+

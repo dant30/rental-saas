@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { cn } from "@utils/cn";
 
 export interface TableColumn<T> {
@@ -28,21 +28,21 @@ const Table = <T,>({
   onRowClick,
   rowClassName,
 }: TableProps<T>) => (
-  <div className={cn("overflow-x-auto rounded-xl border dark:border-slate-700", className)}>
+  <div className={cn("overflow-x-auto rounded-xl border bg-[var(--bg-panel)] shadow-soft dark:border-slate-700", className)}>
     <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-      <thead className="bg-gray-50 dark:bg-slate-800">
+      <thead className="bg-gray-50/90 backdrop-blur-sm dark:bg-slate-800/90">
         <tr>
           {columns.map((column) => (
             <th
               key={column.key}
-              className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-app-muted"
+              className="sticky top-0 z-[var(--layer-sticky)] px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]"
             >
               {column.header}
             </th>
           ))}
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200 bg-white dark:divide-slate-700 dark:bg-slate-900">
+      <tbody className="divide-y divide-gray-200 bg-white/85 dark:divide-slate-700 dark:bg-slate-900/80">
         {data.map((row, index) => {
           const rowClass =
             typeof rowClassName === "function" ? rowClassName(row) : rowClassName;
@@ -51,7 +51,9 @@ const Table = <T,>({
             <tr
               key={rowKey(row, index)}
               className={cn(
-                onRowClick && "cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800",
+                "transition-colors",
+                index % 2 === 1 && "bg-slate-50/60 dark:bg-slate-800/35",
+                onRowClick && "cursor-pointer hover:bg-brand-50/70 dark:hover:bg-brand-900/20",
                 rowClass,
               )}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
@@ -60,7 +62,7 @@ const Table = <T,>({
                 <td
                   key={column.key}
                   className={cn(
-                    "px-4 py-3 text-sm text-app-primary",
+                    "px-4 py-3 text-sm text-[color:var(--text-primary)]",
                     column.cellClassName,
                   )}
                 >
@@ -76,3 +78,4 @@ const Table = <T,>({
 );
 
 export default Table;
+

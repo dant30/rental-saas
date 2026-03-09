@@ -32,8 +32,8 @@ const sizeClasses: Record<SelectSize, string> = {
 };
 
 const variantClasses: Record<SelectVariant, string> = {
-  outline: "border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800",
-  filled: "border-transparent bg-gray-50 dark:bg-slate-700",
+  outline: "border-gray-300 bg-white/90 dark:border-slate-600 dark:bg-slate-800/90",
+  filled: "border-transparent bg-slate-100/80 dark:bg-slate-700/80",
   ghost: "border-transparent bg-transparent",
 };
 
@@ -91,12 +91,12 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             onChange={handleChange}
             className={cn(
               "ui-control w-full appearance-none text-gray-900 ui-focus dark:text-gray-100",
-              "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50 dark:disabled:bg-slate-800/50",
+              "shadow-sm disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50 dark:disabled:bg-slate-800/50",
               sizeClasses[size],
               variantClasses[variant],
               startIcon && "pl-10",
               "pr-10",
-              error && "border-danger-500 focus:ring-danger-500",
+              error && "border-danger-500 focus:ring-danger-400",
             )}
             aria-invalid={error ? true : undefined}
             aria-describedby={describedBy}

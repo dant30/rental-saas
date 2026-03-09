@@ -1,40 +1,48 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 import { authTokenStorage } from "../../../core/api/axios";
 import { handleError } from "../../../core/utils/errorHandler";
 import { clearStoredSession } from "../../../router/PrivateRoute";
 import { authApi } from "../services/authApi";
-import { authInitialState, AuthState } from "../store/authSlice";
+import { authStore } from "../store/authSlice";
+
+let hydrationPromise: Promise<unknown> | null = null;
 
 export const useAuth = () => {
-  const [state, setState] = useState<AuthState>(authInitialState);
+  const state = useSyncExternalStore(authStore.subscribe, authStore.getState, authStore.getState);
 
   const refreshProfile = useCallback(async () => {
     if (!authTokenStorage.get()?.access) {
-      setState(authInitialState);
+      authStore.reset();
       return null;
     }
-    setState((current) => ({ ...current, status: "loading", error: null }));
+
+    authStore.setLoading();
+
     try {
       const { profile } = await authApi.hydrateSession();
-      const user = profile;
-      setState({ user, status: "authenticated", error: null });
-      return user;
+      authStore.setAuthenticated(profile);
+      return profile;
     } catch (error) {
       authTokenStorage.clear();
       clearStoredSession();
-      setState({ user: null, status: "error", error: handleError(error) });
+      authStore.setError(handleError(error));
       return null;
     }
   }, []);
 
   useEffect(() => {
-    void refreshProfile();
+    if (!hydrationPromise) {
+      hydrationPromise = refreshProfile().finally(() => {
+        hydrationPromise = null;
+      });
+    }
   }, [refreshProfile]);
 
   return {
     ...state,
     login: async (payload: Parameters<typeof authApi.login>[0]) => {
+      authStore.setLoading();
       await authApi.login(payload);
       return refreshProfile();
     },
@@ -46,7 +54,7 @@ export const useAuth = () => {
       }
       authTokenStorage.clear();
       clearStoredSession();
-      setState(authInitialState);
+      authStore.reset();
     },
     requestPasswordReset: authApi.requestPasswordReset,
     confirmPasswordReset: authApi.confirmPasswordReset,
